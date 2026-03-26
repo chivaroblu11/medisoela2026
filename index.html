@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MediSoela — MediStream</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net"></script>
 <style>
 :root{
   --gd:#2d6a4f;--gm:#40916c;--g:#52b788;--gl:#74c69d;--gp:#d8f3dc;
@@ -300,7 +301,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <div id="login-err" class="login-err">Incorrect username or code. Please try again.</div>
     <div class="lf"><div class="ll">Username</div><input class="li" id="login-user" placeholder="Enter your username" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()"/></div>
     <div class="lf"><div class="ll">Access Code</div><input class="li" id="login-pass" type="password" placeholder="Enter your access code" onkeydown="if(event.key==='Enter')Login.attempt()"/></div>
-    <button class="login-btn" onclick="Login.attempt()">Sign In →</button>
+    <input class="li" id="login-pass" type="password" ... onkeydown="if(event.key==='Enter'){Login.attempt(); slaAllesOp()}""")/>>
     <div class="login-footer">MediSoela · MediStream v2.0 · Secure Clinical Platform</div>
   </div>
 </div>
@@ -1813,5 +1814,42 @@ function nowTime() {
   },1000);
 })();
 </script>
+  <script>
+  // 1. DE VERBINDING (Met jouw eigen gegevens)
+  const SUB_URL = 'https://dixoqsqabuyshjtuvnrl.supabase.co'; 
+  const SUB_KEY = 'sb_publishable_fShE3EkbevIy1_8tSXuyBQ_LgGwNNtH'; // GEBRUIK DE PUBLIC KEY
+  const _supabase = supabase.createClient(SUB_URL, SUB_KEY);
+
+  // 2. DE FUNCTIE DIE ALLES VERZAMELT
+  async function slaAllesOp() {
+    const dataPakket = {};
+    
+    // Zoek automatisch alle invulvelden
+    const alleVelden = document.querySelectorAll('input, select, textarea');
+    
+    alleVelden.forEach(veld => {
+      const id = veld.id || veld.name;
+      if (id) {
+        dataPakket[id] = veld.type === 'checkbox' ? veld.checked : veld.value;
+      }
+    });
+
+    console.log("Verzenden naar Supabase:", dataPakket);
+
+    // 3. HET OPSLAAN IN DE DATABASE
+    // Zorg dat je in Supabase een tabel hebt die exact 'entries' heet
+    const { error } = await _supabase
+      .from('entries') 
+      .insert([{ payload: dataPakket }]); 
+
+    if (error) {
+      console.error("Fout:", error.message);
+      alert("Er ging iets mis: " + error.message);
+    } else {
+      alert("Succes! De data van je dashboard staat in de cloud.");
+    }
+  }
+</script>
+
 </body>
 </html>
