@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediSoela — MediStream</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#2d6a4f;--gm:#40916c;--g:#52b788;--gl:#74c69d;--gp:#d8f3dc;
+  --w:#fff;--g50:#f8fafb;--g100:#f1f5f2;--g200:#e2e8e4;--g300:#c9d4cc;
+  --g500:#6b7e72;--g700:#3a4a3f;--g900:#1a2e22;
+  --or:#f4845f;--orl:#fde8e0;--bl:#4a90d9;--bll:#e3f0fb;
+  --pu:#7c3aed;--pul:#f3e8ff;--red:#dc2626;--redl:#fee2e2;
+  --yellow:#d97706;--yellowl:#fef3c7;
+  --sh:0 4px 20px rgba(45,106,79,.1),0 1px 4px rgba(45,106,79,.07);
+  --shl:0 8px 32px rgba(45,106,79,.15),0 2px 8px rgba(45,106,79,.1);
+  --r:12px;--rs:8px;--rx:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:#d0e8da}
+
+/* ═══ SCREENS ═══ */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:10}
+.screen.active{display:flex;animation:fadeIn .3s ease}
+
+/* ═══ LOGIN SCREEN ═══ */
+#screen-login{background:linear-gradient(145deg,#1a3328 0%,#0f2019 50%,#1e4d38 100%);align-items:center;justify-content:center}
+.login-bg-dots{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.login-bg-dots::before,.login-bg-dots::after{content:'';position:absolute;border-radius:50%;opacity:.06}
+.login-bg-dots::before{width:500px;height:500px;background:var(--g);top:-100px;left:-150px}
+.login-bg-dots::after{width:400px;height:400px;background:var(--gl);bottom:-100px;right:-100px}
+.login-panel{background:rgba(255,255,255,.97);border-radius:20px;padding:42px 44px;width:420px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,.35);position:relative;z-index:1}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center}
+.login-ico{width:44px;height:44px;background:linear-gradient(135deg,var(--gd),var(--gm));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+.login-brand{font-size:24px;font-weight:800;color:var(--gd);letter-spacing:-.03em}
+.login-brand span{color:var(--g);font-weight:400}
+.login-subtitle{text-align:center;font-size:13px;color:var(--g500);margin-bottom:28px;line-height:1.5}
+.login-tabs{display:flex;background:var(--g100);border-radius:var(--rs);padding:3px;margin-bottom:24px;gap:3px}
+.login-tab{flex:1;padding:8px;text-align:center;font-size:12.5px;font-weight:600;cursor:pointer;border-radius:6px;transition:all .2s;color:var(--g500)}
+.login-tab.active{background:var(--w);color:var(--gd);box-shadow:0 2px 8px rgba(45,106,79,.12)}
+.lf{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.ll{font-size:10.5px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.li{background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--rx);padding:10px 12px;font-size:13.5px;color:var(--g700);font-family:inherit;width:100%;transition:border-color .15s,box-shadow .15s}
+.li:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(82,183,136,.15)}
+.login-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--gd),var(--gm));color:#fff;border:none;border-radius:var(--rx);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:4px;letter-spacing:.01em}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,106,79,.35)}
+.login-err{background:var(--redl);color:var(--red);border:1px solid #fca5a5;border-radius:var(--rx);padding:9px 12px;font-size:12.5px;font-weight:600;text-align:center;display:none;margin-bottom:12px}
+.login-footer{text-align:center;font-size:11px;color:var(--g300);margin-top:20px}
+
+/* ═══ ADMIN SCREEN ═══ */
+#screen-admin{flex-direction:row;background:#e8f2ec}
+.admin-sidebar{width:240px;min-width:240px;background:linear-gradient(180deg,#0f2019 0%,#1a3328 100%);display:flex;flex-direction:column;flex-shrink:0}
+.admin-sn-head{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.admin-logo{display:flex;align-items:center;gap:10px}
+.admin-logo-ico{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;border:1.5px solid rgba(255,255,255,.22)}
+.admin-brand{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.admin-role-badge{margin-top:8px;display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,.35);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.05em}
+.asec{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.12em;padding:13px 18px 4px}
+.ani{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:12px;font-weight:500;color:rgba(255,255,255,.62);cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+.ani:hover{background:rgba(255,255,255,.07);color:#fff}
+.ani.active{background:rgba(255,255,255,.12);color:#fff;font-weight:600;border-left-color:var(--gl)}
+.ani .aicon{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.ani .abadge{margin-left:auto;background:var(--or);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px}
+.admin-sn-foot{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.admin-user-row{display:flex;align-items:center;gap:9px}
+.admin-av{width:30px;height:30px;border-radius:50%;background:var(--pu);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.admin-uname{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.85)}
+.admin-urole{font-size:10px;color:rgba(255,255,255,.4)}
+.admin-logout{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:12px;margin-top:8px;font-family:inherit;transition:color .15s;padding:0}
+.admin-logout:hover{color:#fff}
+
+/* Admin Main */
+.admin-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.admin-topbar{height:52px;background:var(--w);border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(45,106,79,.06)}
+.atb-title{font-size:15px;font-weight:700;color:var(--g900)}
+.atb-sub{font-size:11px;color:var(--g500);margin-left:3px}
+.atb-space{flex:1}
+.admin-page{flex:1;overflow-y:auto;padding:20px 24px;display:none}
+.admin-page.active{display:block;animation:fadeIn .22s ease}
+
+/* ═══ CLINIC SCREEN (front desk) ═══ */
+#screen-clinic{flex-direction:row;background:#d5e8dc}
+.clinic-sidebar{width:215px;min-width:215px;background:linear-gradient(180deg,#1e4d38 0%,#163829 100%);display:flex;flex-direction:column;flex-shrink:0}
+.csn-head{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.csn-clinic-name{font-size:13px;font-weight:700;color:#fff;margin-top:4px;line-height:1.3}
+.csn-user-tag{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+.csec{font-size:8.5px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.12em;padding:12px 16px 4px}
+.cni{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12px;font-weight:500;color:rgba(255,255,255,.62);cursor:pointer;border-left:3px solid transparent;transition:all .15s}
+.cni:hover{background:rgba(255,255,255,.07);color:#fff}
+.cni.active{background:rgba(255,255,255,.12);color:#fff;font-weight:600;border-left-color:var(--gl)}
+.cni .cicon{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.cni .cbadge{margin-left:auto;background:var(--or);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px}
+.cni .locked-tag{margin-left:auto;font-size:9px;color:rgba(255,255,255,.3);font-style:italic}
+.csn-foot{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.csn-user{display:flex;align-items:center;gap:8px}
+.csn-av{width:28px;height:28px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gd);flex-shrink:0}
+.csn-name{font-size:11px;font-weight:600;color:rgba(255,255,255,.82)}
+.csn-role{font-size:9.5px;color:rgba(255,255,255,.4)}
+.clinic-logout{background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:11px;margin-top:7px;font-family:inherit;transition:color .15s;padding:0;display:block}
+.clinic-logout:hover{color:#fff}
+#clock-c{font-size:10px;color:rgba(255,255,255,.32);font-family:'DM Mono',monospace;margin-top:5px}
+
+/* Clinic Main */
+.clinic-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.clinic-topbar{height:52px;background:var(--w);border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(45,106,79,.06)}
+.ctb-title{font-size:15px;font-weight:700;color:var(--g900)}
+.ctb-sub{font-size:11px;color:var(--g500)}
+.ctb-space{flex:1}
+.clinic-page{flex:1;overflow-y:auto;padding:20px 24px;display:none}
+.clinic-page.active{display:block;animation:fadeIn .22s ease}
+.no-access{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;text-align:center}
+.no-access .na-icon{font-size:48px;opacity:.35}
+.no-access .na-title{font-size:16px;font-weight:700;color:var(--g500)}
+.no-access .na-sub{font-size:12.5px;color:var(--g300);max-width:260px}
+
+/* ═══ COMMON COMPONENTS ═══ */
+.card{background:var(--w);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.card-last{margin-bottom:0}
+.ch{background:linear-gradient(135deg,var(--gd),var(--gm));padding:11px 16px;display:flex;align-items:center;gap:8px}
+.ch h3{font-size:13.5px;font-weight:700;color:#fff;flex:1}
+.ch-ico{width:24px;height:24px;background:rgba(255,255,255,.18);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.chbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap}
+.chbtn:hover{background:rgba(255,255,255,.85);color:var(--gd)}
+.cb{padding:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{border-radius:var(--rs);padding:13px 15px;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:transform .15s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.gr{background:linear-gradient(135deg,var(--gd),var(--gm));box-shadow:0 3px 12px rgba(45,106,79,.25)}
+.kpi.or{background:linear-gradient(135deg,#d05a30,var(--or));box-shadow:0 3px 12px rgba(244,132,95,.3)}
+.kpi.bl{background:linear-gradient(135deg,#1d4ed8,var(--bl));box-shadow:0 3px 12px rgba(74,144,217,.3)}
+.kpi.pu{background:linear-gradient(135deg,#5b21b6,var(--pu));box-shadow:0 3px 12px rgba(124,58,237,.3)}
+.kpi-l{font-size:9px;color:rgba(255,255,255,.7);font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+.kpi-v{font-size:26px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;line-height:1.05}
+.kpi-s{font-size:9.5px;color:rgba(255,255,255,.5)}
+.sl{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;padding:8px 11px;background:var(--g50);border-bottom:2px solid var(--g200);text-align:left;white-space:nowrap}
+.tbl td{font-size:12px;color:var(--g700);padding:9px 11px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--g50)}
+.tbl td strong{color:var(--g900);font-weight:600}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.bg-g{background:var(--gp);color:var(--gd)}.bg-o{background:var(--orl);color:var(--or)}.bg-b{background:var(--bll);color:var(--bl)}.bg-pu{background:var(--pul);color:var(--pu)}.bg-r{background:var(--redl);color:var(--red)}.bg-y{background:var(--yellowl);color:var(--yellow)}.bg-gray{background:var(--g200);color:var(--g500)}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fl{font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em}
+.fi,.fsel,.fta{background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--rx);padding:8px 10px;font-size:13px;color:var(--g700);font-family:inherit;transition:border-color .15s,box-shadow .15s;width:100%}
+.fi:focus,.fsel:focus,.fta:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 3px rgba(82,183,136,.14)}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7e72' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px}
+.fta{resize:none;height:68px}
+.fgrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:8px 15px;border-radius:var(--rx);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-p{background:var(--gd);color:#fff;box-shadow:0 2px 8px rgba(45,106,79,.22)}
+.btn-p:hover{background:var(--gm);transform:translateY(-1px)}
+.btn-s{background:var(--gp);color:var(--gd);border:1.5px solid var(--gl)}
+.btn-s:hover{background:var(--gl);color:#fff}
+.btn-b{background:var(--bll);color:var(--bl);border:1.5px solid #93c5fd}
+.btn-b:hover{background:var(--bl);color:#fff}
+.btn-g{background:transparent;color:var(--g500);border:1.5px solid var(--g200)}
+.btn-g:hover{background:var(--g100)}
+.btn-d{background:var(--redl);color:var(--red);border:1.5px solid #fca5a5}
+.btn-d:hover{background:var(--red);color:#fff}
+.btn-pu{background:var(--pul);color:var(--pu);border:1.5px solid #c4b5fd}
+.btn-pu:hover{background:var(--pu);color:#fff}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-xs{padding:3px 7px;font-size:10.5px}
+.tog{width:34px;height:19px;border-radius:20px;cursor:pointer;background:var(--g200);transition:background .2s;flex-shrink:0;display:inline-block;position:relative}
+.tog.on{background:var(--g)}
+.tog::after{content:'';position:absolute;width:13px;height:13px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.tog.on::after{left:18px}
+.sw{position:relative}
+.sw .si{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.4;pointer-events:none}
+.sw input{padding-left:28px}
+.ir{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--g100)}
+.ir:last-child{border-bottom:none}
+.ir-l{font-size:11.5px;color:var(--g500);font-weight:500}
+.ir-v{font-size:12px;color:var(--g700);font-weight:600;text-align:right}
+.divider{height:1px;background:var(--g200);margin:12px 0}
+.empty{text-align:center;padding:28px;color:var(--g300)}
+.empty .ei{font-size:34px;opacity:.35;margin-bottom:7px}
+.empty p{font-size:12.5px}
+/* chart */
+.chart-bars{display:flex;gap:5px;align-items:flex-end;height:72px}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.bb{width:100%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--gl),var(--g));transition:height .4s}
+.bb.ob{background:linear-gradient(180deg,#f9b5a0,var(--or))}
+.bb.hb{background:linear-gradient(180deg,#93c5fd,var(--bl))}
+.blbl{font-size:8px;color:var(--g500);font-family:'DM Mono',monospace}
+/* timeline */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:11px;padding-bottom:13px;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:10px;top:22px;bottom:0;width:2px;background:var(--g200)}
+.tl-dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--w);flex-shrink:0;margin-top:2px;box-shadow:0 0 0 2px var(--g200)}
+.tl-dot.tappt{background:var(--bl)}.tl-dot.tref{background:var(--or)}.tl-dot.tlab{background:var(--pu)}
+.tl-con{flex:1;background:var(--g50);border-radius:var(--rx);padding:8px 11px;border:1px solid var(--g200)}
+.tl-title{font-size:12px;font-weight:600;color:var(--g900)}
+.tl-sub{font-size:10.5px;color:var(--g500);margin-top:2px}
+.tl-date{font-size:9.5px;color:var(--g300);font-family:'DM Mono',monospace;margin-top:2px}
+/* activity */
+.act-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--g100)}
+.act-row:last-child{border-bottom:none}
+.act-ic{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.aig{background:var(--gp)}.aio{background:var(--orl)}.aib{background:var(--bll)}.aipu{background:var(--pul)}
+.act-txt{font-size:11.5px;color:var(--g700);flex:1;line-height:1.32}
+.act-txt strong{font-weight:600;color:var(--g900)}
+.act-t{font-size:10px;color:var(--g500);font-family:'DM Mono',monospace;white-space:nowrap}
+/* notif */
+.nitem{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;background:var(--g50);border-radius:var(--rx);margin-bottom:5px;border-left:3px solid var(--g200);transition:all .15s}
+.nitem.unread{border-left-color:var(--g)}.nitem.alert{border-left-color:var(--or)}
+.nitem:hover{background:var(--gp)}
+.ndot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ndg{background:var(--g)}.ndo{background:var(--or)}.ndb{background:var(--bl)}.ndgr{background:var(--g300)}
+.ntxt{font-size:11.5px;color:var(--g700);flex:1;line-height:1.32}
+.ntxt strong{font-weight:600;color:var(--g900)}
+.nmeta{font-size:10px;color:var(--g500);margin-top:1px}
+/* pri */
+.pri-row{display:flex;gap:6px}
+.pri-btn{flex:1;padding:7px 6px;border-radius:var(--rx);border:1.5px solid var(--g200);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--g50);color:var(--g500);text-align:center;transition:all .15s}
+.pri-btn.pu{border-color:var(--or);color:var(--or);background:var(--orl)}
+.pri-btn.pr{border-color:var(--g);color:var(--gd);background:var(--gp)}
+.pri-btn.pf{border-color:var(--bl);color:var(--bl);background:var(--bll)}
+/* permissions grid */
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.perm-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--g50);border-radius:var(--rx);border:1px solid var(--g200)}
+.perm-label{font-size:11.5px;color:var(--g700);font-weight:500;display:flex;align-items:center;gap:5px}
+/* user card */
+.user-card{border-radius:var(--rs);border:1.5px solid var(--g200);padding:14px;background:var(--w);transition:all .15s;margin-bottom:10px}
+.user-card:hover{border-color:var(--gl);box-shadow:0 2px 10px rgba(45,106,79,.1)}
+.user-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.uav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+/* clinic card */
+.clinic-adm-card{border-radius:var(--rs);border:1.5px solid var(--g200);padding:14px;background:var(--w);transition:all .15s}
+.clinic-adm-card:hover{border-color:var(--gl);box-shadow:0 2px 12px rgba(45,106,79,.1)}
+/* modal */
+.mo{position:fixed;inset:0;background:rgba(10,22,15,.55);backdrop-filter:blur(5px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.mo.open{display:flex;animation:fadeIn .18s ease}
+.mo-box{background:var(--w);border-radius:var(--r);box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:540px;overflow:hidden;animation:slideUp .2s ease;max-height:92vh;display:flex;flex-direction:column}
+.mo-box.wide{max-width:700px}
+.mo-head{background:linear-gradient(135deg,var(--gd),var(--gm));padding:13px 17px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mo-head h3{font-size:14px;font-weight:700;color:#fff;flex:1}
+.mo-close{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit}
+.mo-close:hover{background:rgba(255,255,255,.3)}
+.mo-body{padding:18px;overflow-y:auto;flex:1}
+.mo-foot{padding:12px 18px;border-top:1px solid var(--g200);display:flex;gap:8px;justify-content:flex-end;background:var(--g50);flex-shrink:0}
+/* toast */
+.toast-c{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px;align-items:flex-end;pointer-events:none}
+.toast{background:var(--gd);color:#fff;padding:9px 15px;border-radius:var(--rs);font-size:12px;font-weight:500;box-shadow:0 4px 20px rgba(45,106,79,.35);display:flex;align-items:center;gap:7px;animation:slR .28s ease;max-width:300px;pointer-events:auto}
+.toast.err{background:#b91c1c}.toast.inf{background:var(--bl)}.toast.warn{background:var(--yellow)}
+.toast.out{animation:slRout .28s ease forwards}
+/* foot */
+.foot{background:linear-gradient(90deg,var(--gd),var(--gm));padding:6px 24px;font-size:10px;color:rgba(255,255,255,.78);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ldot{width:6px;height:6px;background:var(--gl);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+/* stat overview card */
+.stat-ov{border-radius:var(--rs);border:1.5px solid var(--g200);padding:13px;background:var(--w);text-align:center}
+.stat-ov-v{font-size:24px;font-weight:700;color:var(--gd);font-family:'DM Mono',monospace}
+.stat-ov-l{font-size:10px;color:var(--g500);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+/* search drop */
+.sdrop{position:absolute;top:100%;left:0;right:0;background:var(--w);border:1.5px solid var(--gl);border-radius:var(--rx);box-shadow:var(--sh);z-index:100;margin-top:2px;overflow:hidden;max-height:200px;overflow-y:auto}
+.sdrop-item{padding:8px 11px;font-size:12px;color:var(--g700);cursor:pointer;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center;transition:background .1s}
+.sdrop-item:last-child{border-bottom:none}
+.sdrop-item:hover{background:var(--gp)}
+/* admin clinic pill selector */
+.clinic-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.clinic-pill{padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--g200);background:var(--g50);color:var(--g500);transition:all .15s}
+.clinic-pill:hover{border-color:var(--g);background:var(--gp);color:var(--gd)}
+.clinic-pill.sel{border-color:var(--gd);background:var(--gd);color:#fff}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slR{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slRout{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(24px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gl);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 1: LOGIN
+═══════════════════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-bg-dots"></div>
+  <div class="login-panel">
+    <div class="login-logo">
+      <div class="login-ico">MS</div>
+      <div class="login-brand">Medi<span>Soela</span></div>
+    </div>
+    <div class="login-subtitle">MediStream Clinical Platform<br>Sign in to access your dashboard</div>
+    <div class="login-tabs">
+      <div class="login-tab active" id="tab-staff" onclick="Login.setTab('staff')">🏥 Front Desk / Staff</div>
+      <div class="login-tab" id="tab-admin" onclick="Login.setTab('admin')">⚙ System Admin</div>
+    </div>
+    <div id="login-err" class="login-err">Incorrect username or code. Please try again.</div>
+    <div class="lf"><div class="ll">Username</div><input class="li" id="login-user" placeholder="Enter your username" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()"/></div>
+    <div class="lf"><div class="ll">Access Code</div><input class="li" id="login-pass" type="password" placeholder="Enter your access code" onkeydown="if(event.key==='Enter')Login.attempt()"/></div>
+    <button class="login-btn" onclick="Login.attempt()">Sign In →</button>
+    <div class="login-footer">MediSoela · MediStream v2.0 · Secure Clinical Platform</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 2: SYSTEM ADMIN
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-admin">
+  <!-- Sidebar -->
+  <div class="admin-sidebar">
+    <div class="admin-sn-head">
+      <div class="admin-logo">
+        <div class="admin-logo-ico">MS</div>
+        <div class="admin-brand">MediSoela</div>
+      </div>
+      <div class="admin-role-badge">⚙ System Administrator</div>
+    </div>
+    <div class="asec">Overview</div>
+    <div class="ani active" id="ani-overview" onclick="Admin.go('overview',this)"><span class="aicon">⊞</span>Overview</div>
+    <div class="asec">Management</div>
+    <div class="ani" id="ani-clinics" onclick="Admin.go('clinics',this)"><span class="aicon">🏥</span>Clinics<span class="abadge" id="adm-nb-clinics">2</span></div>
+    <div class="ani" id="ani-users" onclick="Admin.go('users',this)"><span class="aicon">👤</span>User Accounts<span class="abadge" id="adm-nb-users">3</span></div>
+    <div class="ani" id="ani-permissions" onclick="Admin.go('permissions',this)"><span class="aicon">🔑</span>Permissions</div>
+    <div class="asec">System</div>
+    <div class="ani" id="ani-audit" onclick="Admin.go('audit',this)"><span class="aicon">📋</span>Audit Log</div>
+    <div class="ani" id="ani-settings" onclick="Admin.go('settings',this)"><span class="aicon">⚙</span>System Settings</div>
+    <div class="admin-sn-foot">
+      <div class="admin-user-row">
+        <div class="admin-av">SA</div>
+        <div><div class="admin-uname">MediSoela2026</div><div class="admin-urole">System Administrator</div></div>
+      </div>
+      <button class="admin-logout" onclick="App.logout()">⟵ Sign Out</button>
+    </div>
+  </div>
+  <!-- Admin Main -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div><div class="atb-title" id="adm-title">System Overview</div><div class="atb-sub" id="adm-sub">MediStream platform administration</div></div>
+      <div class="atb-space"></div>
+      <button class="btn btn-p btn-sm" id="adm-action-btn" onclick="Admin.topAction()">＋ Create Clinic</button>
+    </div>
+    <!-- Overview -->
+    <div class="admin-page active" id="adm-page-overview">
+      <div class="g4" style="margin-bottom:16px">
+        <div class="kpi gr" onclick="Admin.go('clinics',document.getElementById('ani-clinics'))"><div class="kpi-l">Active Clinics</div><div class="kpi-v" id="adm-kpi-clinics">2</div><div class="kpi-s">on MediStream</div></div>
+        <div class="kpi bl" onclick="Admin.go('users',document.getElementById('ani-users'))"><div class="kpi-l">User Accounts</div><div class="kpi-v" id="adm-kpi-users">3</div><div class="kpi-s">across all clinics</div></div>
+        <div class="kpi or"><div class="kpi-l">Total Patients</div><div class="kpi-v" id="adm-kpi-patients">0</div><div class="kpi-s">in system</div></div>
+        <div class="kpi pu"><div class="kpi-l">Appointments</div><div class="kpi-v" id="adm-kpi-appts">0</div><div class="kpi-s">total booked</div></div>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">🏥</div><h3>Registered Clinics</h3><button class="chbtn" onclick="Admin.go('clinics',document.getElementById('ani-clinics'))">Manage →</button></div>
+            <div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Clinic</th><th>Location</th><th>Users</th><th>Status</th></tr></thead><tbody id="adm-clinic-table"></tbody></table></div>
+          </div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">📋</div><h3>Recent Audit Log</h3><button class="chbtn" onclick="Admin.go('audit',document.getElementById('ani-audit'))">Full Log →</button></div>
+            <div class="cb" id="adm-audit-preview"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">👤</div><h3>User Accounts</h3><button class="chbtn" onclick="Modal.open('create-user')">＋ Create User</button></div>
+            <div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Name</th><th>Clinic</th><th>Role</th><th>Status</th></tr></thead><tbody id="adm-user-table"></tbody></table></div>
+          </div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">⚡</div><h3>Quick Actions</h3></div>
+            <div class="cb">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button class="btn btn-p" style="justify-content:center" onclick="Modal.open('create-clinic')">🏥 Create Clinic</button>
+                <button class="btn btn-b" style="justify-content:center" onclick="Modal.open('create-user')">👤 Create User</button>
+                <button class="btn btn-s" style="justify-content:center" onclick="Admin.go('permissions',document.getElementById('ani-permissions'))">🔑 Permissions</button>
+                <button class="btn btn-g" style="justify-content:center" onclick="Admin.go('audit',document.getElementById('ani-audit'))">📋 Audit Log</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Clinics -->
+    <div class="admin-page" id="adm-page-clinics">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="sl" style="margin:0">All Registered Clinics</div>
+        <button class="btn btn-p btn-sm" onclick="Modal.open('create-clinic')">＋ Create Clinic</button>
+      </div>
+      <div class="g2" id="adm-clinics-grid"></div>
+    </div>
+    <!-- Users -->
+    <div class="admin-page" id="adm-page-users">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="sl" style="margin:0">All User Accounts</div>
+        <button class="btn btn-p btn-sm" onclick="Modal.open('create-user')">＋ Create User</button>
+      </div>
+      <div id="adm-users-list"></div>
+    </div>
+    <!-- Permissions -->
+    <div class="admin-page" id="adm-page-permissions">
+      <div class="card">
+        <div class="ch"><div class="ch-ico">🔑</div><h3>Permissions & Rights</h3></div>
+        <div class="cb">
+          <p style="font-size:13px;color:var(--g700);margin-bottom:14px">Select a user to view and edit their access rights. Permissions are applied per user and control what sections they can see and use.</p>
+          <div class="fg"><div class="fl">Select User</div><select class="fsel" id="perm-user-sel" onchange="Admin.loadPermUser()"></select></div>
+          <div id="perm-panel"><div class="empty"><div class="ei">🔑</div><p>Select a user above to manage their permissions</p></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Audit Log -->
+    <div class="admin-page" id="adm-page-audit">
+      <div class="card card-last">
+        <div class="ch"><div class="ch-ico">📋</div><h3>System Audit Log</h3><button class="chbtn" onclick="DB.auditLog=[];R.audit();toast('Audit log cleared','inf')">Clear</button></div>
+        <div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Time</th><th>User</th><th>Clinic</th><th>Action</th></tr></thead><tbody id="audit-body"></tbody></table></div>
+      </div>
+    </div>
+    <!-- Settings -->
+    <div class="admin-page" id="adm-page-settings">
+      <div class="card">
+        <div class="ch"><div class="ch-ico">⚙</div><h3>System Settings</h3></div>
+        <div class="cb">
+          <div class="sl" style="margin-bottom:10px">Platform</div>
+          <div class="ir"><div class="ir-l">Platform Name</div><input class="fi" value="MediSoela MediStream" style="width:220px;padding:5px 8px;font-size:12px"/></div>
+          <div class="ir"><div class="ir-l">Require 2FA for Admin</div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir"><div class="ir-l">Auto-lock inactive sessions (30min)</div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir"><div class="ir-l">Allow clinic self-registration</div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir" style="border:none"><div class="ir-l">Maintenance Mode</div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div style="margin-top:14px"><button class="btn btn-p" onclick="toast('Settings saved ✓')">Save Settings</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="ldot"></div>MediStream System Admin · <span id="adm-sync">Live</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 3: CLINIC DASHBOARD (Front Desk)
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-clinic">
+  <div class="clinic-sidebar">
+    <div class="csn-head">
+      <div class="admin-logo">
+        <div class="admin-logo-ico">MS</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">MediSoela</div>
+        </div>
+      </div>
+      <div class="csn-clinic-name" id="csn-clinic-name">Clinic Name</div>
+      <div class="csn-user-tag" id="csn-user-tag">Front Desk</div>
+    </div>
+    <div class="csec">Main</div>
+    <div class="cni active" id="cni-dashboard" onclick="Clinic.go('dashboard',this)"><span class="cicon">⊞</span>Dashboard</div>
+    <div class="cni" id="cni-appointments" onclick="Clinic.go('appointments',this)"><span class="cicon">📅</span>Appointments<span class="cbadge" id="cnb-appts">0</span></div>
+    <div class="cni" id="cni-referrals" onclick="Clinic.go('referrals',this)"><span class="cicon">↗</span>Referrals<span class="cbadge" id="cnb-refs">0</span></div>
+    <div class="csec">Patients</div>
+    <div class="cni" id="cni-patients" onclick="Clinic.go('patients',this)"><span class="cicon">👤</span>Patient Database</div>
+    <div class="cni" id="cni-contact" onclick="Clinic.go('contact',this)"><span class="cicon">📲</span>Contact Prefs</div>
+    <div class="csec">Admin</div>
+    <div class="cni" id="cni-insurance" onclick="Clinic.go('insurance',this)"><span class="cicon">🛡</span>Insurance</div>
+    <div class="cni" id="cni-labresults" onclick="Clinic.go('labresults',this)"><span class="cicon">🧪</span>Lab Results<span class="locked-tag" id="lab-lock-tag"></span></div>
+    <div class="cni" id="cni-notifications" onclick="Clinic.go('notifications',this)"><span class="cicon">🔔</span>Notifications</div>
+    <div class="csn-foot">
+      <div class="csn-user"><div class="csn-av" id="csn-av">FD</div><div><div class="csn-name" id="csn-uname">User</div><div class="csn-role" id="csn-urole">Front Desk</div></div></div>
+      <button class="clinic-logout" onclick="App.logout()">⟵ Sign Out</button>
+      <div id="clock-c"></div>
+    </div>
+  </div>
+  <div class="clinic-main">
+    <div class="clinic-topbar">
+      <div><div class="ctb-title" id="ctb-title">Dashboard</div><div class="ctb-sub" id="ctb-sub">Welcome back</div></div>
+      <div class="ctb-space"></div>
+      <div class="sw" style="position:relative;min-width:180px">
+        <span class="si">🔍</span>
+        <input class="fi" id="c-gsearch" placeholder="Search patients…" style="padding-left:28px;height:32px;font-size:12px" autocomplete="off" oninput="Clinic.search(this.value)"/>
+        <div class="sdrop" id="c-sdrop" style="display:none"></div>
+      </div>
+      <button class="btn btn-p btn-sm" id="ctb-action" onclick="Clinic.topAction()">＋ New Appointment</button>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--g50);border:1px solid var(--g200);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative" onclick="Clinic.go('notifications',document.getElementById('cni-notifications'))">🔔<div style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--or);border-radius:50%;border:2px solid #fff" id="c-bell-dot"></div></div>
+    </div>
+    <!-- Dashboard -->
+    <div class="clinic-page active" id="cp-dashboard">
+      <div class="g4" style="margin-bottom:16px">
+        <div class="kpi gr" onclick="Clinic.go('appointments',document.getElementById('cni-appointments'))"><div class="kpi-l">Appointments</div><div class="kpi-v" id="ck-appts">0</div><div class="kpi-s">total booked</div></div>
+        <div class="kpi or" onclick="Clinic.go('referrals',document.getElementById('cni-referrals'))"><div class="kpi-l">Referrals</div><div class="kpi-v" id="ck-refs">0</div><div class="kpi-s">pending/sent</div></div>
+        <div class="kpi bl" onclick="Clinic.go('patients',document.getElementById('cni-patients'))"><div class="kpi-l">Patients</div><div class="kpi-v" id="ck-pats">0</div><div class="kpi-s">in database</div></div>
+        <div class="kpi pu"><div class="kpi-l">Today's Visits</div><div class="kpi-v" id="ck-today">0</div><div class="kpi-s">confirmed today</div></div>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">📅</div><h3>Recent Appointments</h3><button class="chbtn" onclick="Clinic.go('appointments',document.getElementById('cni-appointments'))">View All →</button></div>
+            <div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead><tbody id="cp-appts-body"></tbody></table></div>
+          </div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">📊</div><h3>Weekly Activity</h3></div>
+            <div class="cb"><div class="chart-bars" id="cp-chart"></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ch-ico">⚡</div><h3>Quick Actions</h3></div>
+            <div class="cb">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="qa-grid"></div>
+              <div class="sl">Recent Activity</div>
+              <div id="cp-activity"></div>
+            </div>
+          </div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">↗</div><h3>Recent Referrals</h3><button class="chbtn" onclick="Clinic.go('referrals',document.getElementById('cni-referrals'))">View All →</button></div>
+            <div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Patient</th><th>Dept</th><th>Priority</th><th>Status</th></tr></thead><tbody id="cp-refs-body"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Appointments Page -->
+    <div class="clinic-page" id="cp-appointments">
+      <div class="card card-last">
+        <div class="ch"><div class="ch-ico">📅</div><h3>Appointments</h3><button class="chbtn" onclick="Modal.open('appt')">＋ New</button></div>
+        <div class="cb">
+          <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+            <div class="sw" style="flex:1"><span class="si">🔍</span><input class="fi" id="af-q" placeholder="Search…" oninput="CR.appts()" style="padding-left:28px"/></div>
+            <select class="fsel" id="af-status" style="width:150px" onchange="CR.appts()"><option value="">All Statuses</option><option value="confirmed">Confirmed</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option></select>
+          </div>
+          <table class="tbl"><thead><tr><th>Time</th><th>Date</th><th>Patient</th><th>Doctor</th><th>Dept</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead><tbody id="appts-full-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <!-- Referrals Page -->
+    <div class="clinic-page" id="cp-referrals">
+      <div class="g2">
+        <div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">↗</div><h3>New Referral</h3></div>
+            <div class="cb">
+              <div class="fg"><div class="fl">Patient *</div><select class="fsel" id="rp-patient"></select></div>
+              <div class="fg"><div class="fl">Referring Physician</div><select class="fsel" id="rp-physician"><option>Dr. L. Gutiérrez</option><option>Dr. Blokland</option><option>Dr. Ahmad</option><option>Dr. Lim</option></select></div>
+              <div class="fg"><div class="fl">Specialist / Department</div><select class="fsel" id="rp-specialist"><option value="Dr. N. Jansen — Cardiology">Dr. N. Jansen — Cardiology</option><option value="Dr. Ahmad — Neurology">Dr. Ahmad — Neurology</option><option value="Dr. Lim — Cardiology">Dr. Lim — Cardiology</option><option value="Dr. Osei — Orthopedics">Dr. Osei — Orthopedics</option><option value="Dr. Patel — Surgery">Dr. Patel — Surgery</option><option value="Dr. Harms — Obstetrics">Dr. Harms — Obstetrics</option></select></div>
+              <div class="fg"><div class="fl">Priority</div>
+                <div class="pri-row" id="ref-pri-row">
+                  <div class="pri-btn pu" onclick="Clinic.setPri('urgent',this)">🔴 Urgent</div>
+                  <div class="pri-btn" onclick="Clinic.setPri('routine',this)">🟢 Routine</div>
+                  <div class="pri-btn" onclick="Clinic.setPri('followup',this)">🔵 Follow-up</div>
+                </div>
+              </div>
+              <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Insurance</div><select class="fsel" id="rp-ins"><option>SZF</option><option>100ern</option><option>AltCare</option></select></div>
+              <div class="fg" style="margin:0"><div class="fl">Date</div><input type="date" class="fi" id="rp-date"/></div></div>
+              <div class="fg" style="margin-top:11px"><div class="fl">Reason *</div><textarea class="fta" id="rp-reason" placeholder="Clinical reason…"></textarea></div>
+              <div style="display:flex;gap:7px;margin-top:4px">
+                <button class="btn btn-p" onclick="CActions.sendRef()">↗ Send Referral</button>
+                <button class="btn btn-g" onclick="CActions.clearRef()">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card card-last">
+            <div class="ch"><div class="ch-ico">📋</div><h3>All Referrals</h3></div>
+            <div class="cb" style="padding:0">
+              <div style="padding:12px 16px 0"><div class="sw" style="flex:1"><span class="si">🔍</span><input class="fi" id="rf-q" placeholder="Search referrals…" oninput="CR.refs()" style="padding-left:28px"/></div></div>
+              <table class="tbl" style="margin-top:10px"><thead><tr><th>Patient</th><th>Specialist</th><th>Priority</th><th>Status</th><th></th></tr></thead><tbody id="refs-full-body"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Patients -->
+    <div class="clinic-page" id="cp-patients">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <div class="sw" style="flex:1"><span class="si">🔍</span><input class="fi" id="pf-q" placeholder="Search patients…" oninput="CR.patients(this.value)" style="padding-left:28px"/></div>
+        <button class="btn btn-p" id="add-pat-btn" onclick="Modal.open('patient')">👤 Add Patient</button>
+      </div>
+      <div class="g2" id="pat-grid-c"></div>
+    </div>
+    <!-- Contact Prefs -->
+    <div class="clinic-page" id="cp-contact">
+      <div class="g2">
+        <div><div class="card card-last"><div class="ch"><div class="ch-ico">👤</div><h3>Select Patient</h3></div><div class="cb">
+          <div class="sw" style="margin-bottom:10px"><span class="si">🔍</span><input class="fi" id="cpq" placeholder="Search patient…" oninput="CR.cpList(this.value)" style="padding-left:28px"/></div>
+          <div id="cp-list-c" style="max-height:360px;overflow-y:auto"></div>
+        </div></div></div>
+        <div><div class="card card-last"><div class="ch"><div class="ch-ico">📲</div><h3>Contact Preferences</h3><span id="cp-sel-name" style="font-size:11px;color:rgba(255,255,255,.65)"></span></div><div class="cb" id="cp-panel-c"><div class="empty"><div class="ei">📲</div><p>Select a patient to manage contact preferences</p></div></div></div></div>
+      </div>
+    </div>
+    <!-- Insurance -->
+    <div class="clinic-page" id="cp-insurance">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="sl" style="margin:0">Insurance Providers</div><button class="btn btn-p btn-sm" onclick="Modal.open('ins')">＋ Add Provider</button></div>
+      <div class="g2" id="ins-grid-c"></div>
+    </div>
+    <!-- Lab Results -->
+    <div class="clinic-page" id="cp-labresults">
+      <div id="lab-content"></div>
+    </div>
+    <!-- Notifications -->
+    <div class="clinic-page" id="cp-notifications">
+      <div class="g2">
+        <div><div class="card card-last"><div class="ch"><div class="ch-ico">🔔</div><h3>Notifications</h3><button class="chbtn" onclick="CActions.clearNotifs()">Clear All</button></div><div class="cb" id="c-notif-list"></div></div></div>
+        <div><div class="card card-last"><div class="ch"><div class="ch-ico">⚙</div><h3>Notification Settings</h3></div><div class="cb">
+          <div class="ir"><div class="ir-l">SMS Reminders</div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir"><div class="ir-l">WhatsApp</div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir"><div class="ir-l">Email</div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div class="ir" style="border:none"><div class="ir-l">Push Alerts</div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div style="margin-top:12px"><button class="btn btn-p btn-sm" onclick="toast('Settings saved ✓')">Save</button></div>
+        </div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="ldot"></div>MediStream — <span id="c-clinic-foot">Clinic</span> · <span id="c-sync">Live</span></div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="modal" onclick="Modal.close(event)">
+  <div class="mo-box" id="mo-box" onclick="event.stopPropagation()">
+    <div class="mo-head"><div class="ch-ico" style="background:rgba(255,255,255,.2)">MS</div><h3 id="mo-title">–</h3><button class="mo-close" onclick="Modal.close()">✕</button></div>
+    <div class="mo-body" id="mo-body"></div>
+    <div class="mo-foot" id="mo-foot"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-c" id="toasts"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATABASE  (in-memory, isolated per clinic)
+// ═══════════════════════════════════════════════════════════════
+const DB = {
+  auditLog: [],
+
+  // ── Clinics ──
+  clinics: [
+    { id:'CL-001', name:'Westbrook Medical Centre', location:'Rotterdam, NL', type:'General Practice', phone:'+31 10 234 5678', email:'admin@westbrook.nl', active:true, color:'#2d6a4f' },
+    { id:'CL-002', name:'Noord Cardiology Clinic', location:'Amsterdam, NL', type:'Specialist', phone:'+31 20 123 4567', email:'admin@noordcard.nl', active:true, color:'#1d4ed8' },
+  ],
+
+  // ── Users (front desk + clinic staff) ──
+  users: [
+    { id:'U001', username:'westbrook_fd', code:'1234', name:'Sophie van den Berg', role:'Front Desk', clinicId:'CL-001', active:true,
+      permissions:{ appointments:true, patients:true, referrals:true, labresults:false, insurance:true, contact:true, notifications:true } },
+    { id:'U002', username:'westbrook_nurse', code:'5678', name:'Lars Hendriks', role:'Nurse', clinicId:'CL-001', active:true,
+      permissions:{ appointments:true, patients:true, referrals:true, labresults:true, insurance:false, contact:true, notifications:true } },
+    { id:'U003', username:'noord_fd', code:'9012', name:'Amara Osei', role:'Front Desk', clinicId:'CL-002', active:true,
+      permissions:{ appointments:true, patients:true, referrals:true, labresults:false, insurance:true, contact:true, notifications:true } },
+  ],
+
+  // ── Per-clinic data (patients, appointments, referrals etc) ──
+  clinicData: {
+    'CL-001': {
+      patients: [
+        { id:'PT-001', name:'Maria Singh', dob:'03/11/1989', gender:'Female', blood:'A+', phone:'+31 6 1234 5001', email:'m.singh@email.com', insurance:'SZF', gp:'Dr. L. Gutiérrez', cp:{ sms:true,whatsapp:true,email:false,phone:true,post:false }, notes:'Hypertension. Regular cardiology check-ups.' },
+        { id:'PT-002', name:'John Pinas', dob:'22/05/1975', gender:'Male', blood:'O+', phone:'+31 6 1234 5002', email:'j.pinas@email.com', insurance:'100ern', gp:'Dr. Blokland', cp:{ sms:true,whatsapp:false,email:true,phone:true,post:false }, notes:'Elevated cholesterol.' },
+      ],
+      appointments: [
+        { id:'A001', time:'08:30', date:'2026-03-26', patient:'Maria Singh', pid:'PT-001', doctor:'Dr. Blokland', dept:'Internal Medicine', status:'confirmed' },
+        { id:'A002', time:'09:15', date:'2026-03-26', patient:'John Pinas', pid:'PT-002', doctor:'Dr. Lim', dept:'Cardiology', status:'confirmed' },
+      ],
+      referrals: [
+        { id:'R001', patient:'Maria Singh', pid:'PT-001', dept:'Neurology', specialist:'Dr. Ahmad', status:'pending', priority:'urgent', date:'2026-03-26', reason:'Severe headaches.' },
+      ],
+      insurances: [
+        { id:'INS-001', code:'SZF', name:'State Health Fund', type:'Public', color:'#2d6a4f', active:true, patients:1, claims:22, coverage:'Full', end:'2027-12-31', phone:'+31 800 123 456', email:'claims@szf.nl' },
+        { id:'INS-002', code:'100E', name:'100ern Insurance', type:'Semi-Public', color:'#2563eb', active:true, patients:1, claims:9, coverage:'Extended', end:'2027-06-30', phone:'+31 800 234 567', email:'admin@100ern.nl' },
+      ],
+      labResults: [
+        { id:'LAB-001', patient:'John Pinas', test:'Cholesterol Panel', result:'High', value:'6.8 mmol/L', date:'2026-03-25', status:'ready' },
+        { id:'LAB-002', patient:'Maria Singh', test:'Blood Count', result:'Normal', value:'Within range', date:'2026-03-24', status:'ready' },
+      ],
+      notifications: [
+        { type:'alert', dot:'ndo', title:'Urgent Referral', msg:'Maria Singh awaiting Neurology slot', time:'2 min ago', cat:'Referrals' },
+        { type:'unread', dot:'ndg', title:'Lab Ready', msg:'John Pinas — Cholesterol Panel', time:'12 min ago', cat:'Lab Results' },
+      ],
+      activity: [
+        { ic:'✓', cls:'aig', text:'<strong>Maria Singh</strong> checked in — Dr. Blokland', t:'08:31' },
+        { ic:'↗', cls:'aio', text:'<strong>Referral</strong> sent — Maria Singh to Neurology', t:'08:15' },
+      ],
+      chart: [28,35,22,44,31,10,8],
+    },
+    'CL-002': {
+      patients: [
+        { id:'PT-001', name:'Jason Oosterhof', dob:'09/01/1990', gender:'Male', blood:'AB+', phone:'+31 6 4321 0001', email:'j.oost@email.com', insurance:'SZF', gp:'Dr. Lim', cp:{ sms:true,whatsapp:true,email:false,phone:true,post:false }, notes:'Cardiology patient, no known allergies.' },
+      ],
+      appointments: [
+        { id:'A001', time:'10:00', date:'2026-03-26', patient:'Jason Oosterhof', pid:'PT-001', doctor:'Dr. N. Jansen', dept:'Cardiology', status:'confirmed' },
+      ],
+      referrals: [],
+      insurances: [
+        { id:'INS-001', code:'SZF', name:'State Health Fund', type:'Public', color:'#2d6a4f', active:true, patients:1, claims:5, coverage:'Full', end:'2027-12-31', phone:'+31 800 123 456', email:'claims@szf.nl' },
+      ],
+      labResults: [],
+      notifications: [
+        { type:'unread', dot:'ndg', title:'Appointment Confirmed', msg:'Jason Oosterhof — 10:00 today', time:'1 hr ago', cat:'Appointments' },
+      ],
+      activity: [
+        { ic:'✓', cls:'aig', text:'<strong>Jason Oosterhof</strong> booked — Dr. N. Jansen', t:'09:05' },
+      ],
+      chart: [12,18,9,24,15,4,3],
+    },
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SESSION STATE
+// ═══════════════════════════════════════════════════════════════
+let Session = { role: null, user: null, clinic: null, clinicData: null, priority: 'urgent', cpPat: null };
+
+function cd() { return Session.clinicData; }
+
+// ═══════════════════════════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════════════════════════
+const App = {
+  show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  },
+  logout() {
+    if (!confirm('Sign out of MediStream?')) return;
+    auditLog(Session.user ? Session.user.username : 'admin', Session.clinic ? Session.clinic.name : 'System', 'Signed out');
+    Session = { role:null, user:null, clinic:null, clinicData:null, priority:'urgent', cpPat:null };
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-err').style.display = 'none';
+    this.show('login');
+    toast('Signed out successfully', 'inf');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════════
+let loginTab = 'staff';
+const Login = {
+  setTab(t) {
+    loginTab = t;
+    document.getElementById('tab-staff').classList.toggle('active', t === 'staff');
+    document.getElementById('tab-admin').classList.toggle('active', t === 'admin');
+    document.getElementById('login-err').style.display = 'none';
+    document.getElementById('login-user').placeholder = t === 'admin' ? 'System admin username' : 'Your username';
+  },
+  attempt() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    const err = document.getElementById('login-err');
+    err.style.display = 'none';
+    if (!u || !p) { err.textContent = 'Please enter username and access code.'; err.style.display = 'block'; return; }
+    if (loginTab === 'admin') {
+      if (u === 'MediSoela2026' && p === '8607258') {
+        Session.role = 'admin';
+        auditLog('MediSoela2026', 'System', 'Admin login');
+        Admin.init();
+        App.show('admin');
+        toast('Welcome, System Administrator');
+      } else {
+        this._fail();
+      }
+    } else {
+      const user = DB.users.find(x => x.username === u && x.code === p && x.active);
+      if (user) {
+        Session.role = 'staff';
+        Session.user = user;
+        Session.clinic = DB.clinics.find(c => c.id === user.clinicId);
+        Session.clinicData = DB.clinicData[user.clinicId];
+        auditLog(user.username, Session.clinic ? Session.clinic.name : '?', 'Signed in');
+        Clinic.init();
+        App.show('clinic');
+        toast('Welcome, ' + user.name);
+      } else {
+        this._fail();
+      }
+    }
+  },
+  _fail() {
+    const err = document.getElementById('login-err');
+    err.textContent = 'Incorrect username or access code. Please try again.';
+    err.style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').classList.add('shake');
+    setTimeout(() => document.getElementById('login-pass').classList.remove('shake'), 450);
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════════════════
+const Admin = {
+  cur: 'overview',
+  cfg: {
+    overview:    { title:'System Overview',    sub:'MediStream platform overview',          btn:'＋ Create Clinic',  act:'create-clinic' },
+    clinics:     { title:'Clinic Registry',    sub:'Manage all registered clinics',         btn:'＋ Create Clinic',  act:'create-clinic' },
+    users:       { title:'User Accounts',      sub:'Manage all front desk and staff users', btn:'＋ Create User',    act:'create-user' },
+    permissions: { title:'Permissions',        sub:'Configure user access rights',          btn:null },
+    audit:       { title:'Audit Log',          sub:'All system activity',                   btn:null },
+    settings:    { title:'System Settings',    sub:'Platform configuration',                btn:null },
+  },
+  init() {
+    R.adminKpis();
+    R.adminClinicTable();
+    R.adminUserTable();
+    R.adminAuditPreview();
+  },
+  go(id, el) {
+    document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.ani').forEach(n => n.classList.remove('active'));
+    const pg = document.getElementById('adm-page-' + id);
+    if (pg) pg.classList.add('active');
+    if (el) el.classList.add('active');
+    this.cur = id;
+    const c = this.cfg[id] || {};
+    document.getElementById('adm-title').textContent = c.title || id;
+    document.getElementById('adm-sub').textContent = c.sub || '';
+    const btn = document.getElementById('adm-action-btn');
+    if (c.btn) { btn.style.display = 'inline-flex'; btn.textContent = c.btn; }
+    else btn.style.display = 'none';
+    if (id === 'clinics')    { R.adminClinicsGrid(); }
+    if (id === 'users')      { R.adminUsersList(); }
+    if (id === 'audit')      { R.audit(); }
+    if (id === 'permissions'){ R.permUserSel(); }
+  },
+  topAction() {
+    const c = this.cfg[this.cur];
+    if (c && c.act) Modal.open(c.act);
+  },
+  loadPermUser() {
+    const uid = document.getElementById('perm-user-sel').value;
+    R.permPanel(uid);
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CLINIC DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+const Clinic = {
+  cur: 'dashboard',
+  priority: 'urgent',
+  cfg: {
+    dashboard:    { title:'Dashboard',           sub:'',           btn:'＋ New Appointment', act:'appt' },
+    appointments: { title:'Appointments',        sub:'',           btn:'＋ New Appointment', act:'appt' },
+    referrals:    { title:'Referrals',           sub:'',           btn:'↗ Send Referral',   act:'ref-page' },
+    patients:     { title:'Patient Database',    sub:'',           btn:'👤 Add Patient',    act:'patient' },
+    contact:      { title:'Contact Preferences', sub:'',           btn:null },
+    insurance:    { title:'Insurance',           sub:'',           btn:'＋ Add Provider',   act:'ins' },
+    labresults:   { title:'Lab Results',         sub:'',           btn:null },
+    notifications:{ title:'Notifications',       sub:'',           btn:null },
+  },
+  init() {
+    const u = Session.user, c = Session.clinic;
+    document.getElementById('csn-clinic-name').textContent = c ? c.name : '';
+    document.getElementById('csn-user-tag').textContent = u ? (u.role + ' — ' + (c ? c.name : '')) : '';
+    document.getElementById('csn-uname').textContent = u ? u.name : '';
+    document.getElementById('csn-urole').textContent = u ? u.role : '';
+    document.getElementById('csn-av').textContent = u ? u.name.split(' ').map(w=>w[0]).join('').slice(0,2) : 'FD';
+    document.getElementById('c-clinic-foot').textContent = c ? c.name : '';
+    // Set up locked nav items
+    const perms = u ? u.permissions : {};
+    this.updateNavLocks(perms);
+    this.go('dashboard', document.getElementById('cni-dashboard'));
+    CR.all();
+  },
+  updateNavLocks(perms) {
+    const map = { appointments:'cni-appointments',patients:'cni-patients',referrals:'cni-referrals',contact:'cni-contact',insurance:'cni-insurance',labresults:'cni-labresults',notifications:'cni-notifications' };
+    Object.entries(map).forEach(([key, navId]) => {
+      const el = document.getElementById(navId);
+      if (!el) return;
+      const locked = !perms[key];
+      el.style.opacity = locked ? '0.45' : '1';
+      el.title = locked ? 'Access restricted by administrator' : '';
+    });
+    const labTag = document.getElementById('lab-lock-tag');
+    if (labTag) labTag.textContent = !perms.labresults ? '🔒' : '';
+  },
+  go(id, el) {
+    const u = Session.user;
+    const perms = u ? u.permissions : {};
+    if (perms[id] === false) {
+      toast('Access restricted — contact your administrator', 'err');
+      return;
+    }
+    document.querySelectorAll('.clinic-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.cni').forEach(n => n.classList.remove('active'));
+    const pg = document.getElementById('cp-' + id);
+    if (pg) pg.classList.add('active');
+    if (el) el.classList.add('active');
+    this.cur = id;
+    const c = this.cfg[id] || {};
+    const clinic = Session.clinic;
+    document.getElementById('ctb-title').textContent = c.title || id;
+    document.getElementById('ctb-sub').textContent = clinic ? clinic.name + ' · ' + (c.sub || '') : '';
+    const btn = document.getElementById('ctb-action');
+    if (c.btn) { btn.style.display = 'inline-flex'; btn.textContent = c.btn; }
+    else btn.style.display = 'none';
+    if (id === 'dashboard')    { CR.dash(); }
+    if (id === 'appointments') { CR.appts(); }
+    if (id === 'referrals')    { CR.refs(); CR.patSels(); }
+    if (id === 'patients')     { CR.patients(); }
+    if (id === 'contact')      { CR.cpList(); }
+    if (id === 'insurance')    { CR.insurance(); }
+    if (id === 'labresults')   { CR.labResults(); }
+    if (id === 'notifications'){ CR.notifs(); }
+    document.getElementById('c-sdrop').style.display = 'none';
+  },
+  topAction() {
+    const c = this.cfg[this.cur];
+    if (!c || !c.act) return;
+    if (c.act === 'ref-page') { this.go('referrals', document.getElementById('cni-referrals')); return; }
+    Modal.open(c.act);
+  },
+  search(q) {
+    const drop = document.getElementById('c-sdrop');
+    if (!q.trim() || !cd()) { drop.style.display='none'; return; }
+    const hits = cd().patients.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.id.toLowerCase().includes(q.toLowerCase()));
+    if (!hits.length) { drop.style.display='none'; return; }
+    drop.style.display = 'block';
+    drop.innerHTML = hits.map(p =>
+      `<div class="sdrop-item" onclick="Clinic.go('patients',document.getElementById('cni-patients'));document.getElementById('c-sdrop').style.display='none';document.getElementById('c-gsearch').value='';setTimeout(()=>Modal.open('pat-profile','${p.id}'),200)">
+        <strong>${p.name}</strong><span style="font-size:10px;color:var(--g500);font-family:'DM Mono',monospace">#${p.id}</span>
+      </div>`).join('');
+  },
+  setPri(p, el) {
+    Session.priority = p;
+    document.querySelectorAll('#ref-pri-row .pri-btn').forEach(b => b.classList.remove('pu','pr','pf'));
+    el.classList.add(p==='urgent'?'pu':p==='routine'?'pr':'pf');
+  },
+};
+document.addEventListener('click', e => { if (!e.target.closest('#c-gsearch') && !e.target.closest('#c-sdrop')) document.getElementById('c-sdrop').style.display='none'; });
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN RENDERERS
+// ═══════════════════════════════════════════════════════════════
+const R = {
+  adminKpis() {
+    document.getElementById('adm-kpi-clinics').textContent = DB.clinics.filter(c=>c.active).length;
+    document.getElementById('adm-kpi-users').textContent = DB.users.filter(u=>u.active).length;
+    let pats=0, appts=0;
+    Object.values(DB.clinicData).forEach(d=>{ pats+=d.patients.length; appts+=d.appointments.length; });
+    document.getElementById('adm-kpi-patients').textContent = pats;
+    document.getElementById('adm-kpi-appts').textContent = appts;
+    document.getElementById('adm-nb-clinics').textContent = DB.clinics.length;
+    document.getElementById('adm-nb-users').textContent = DB.users.length;
+  },
+  adminClinicTable() {
+    const el = document.getElementById('adm-clinic-table');
+    if (!el) return;
+    el.innerHTML = DB.clinics.map(c => {
+      const uCount = DB.users.filter(u => u.clinicId===c.id).length;
+      return `<tr style="cursor:pointer" onclick="Admin.go('clinics',document.getElementById('ani-clinics'))">
+        <td><strong>${c.name}</strong></td><td>${c.location}</td><td>${uCount}</td>
+        <td><span class="badge ${c.active?'bg-g':'bg-o'}">${c.active?'Active':'Inactive'}</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--g300);padding:20px">No clinics registered</td></tr>';
+  },
+  adminUserTable() {
+    const el = document.getElementById('adm-user-table');
+    if (!el) return;
+    el.innerHTML = DB.users.slice(0,5).map(u => {
+      const clinic = DB.clinics.find(c=>c.id===u.clinicId);
+      return `<tr style="cursor:pointer" onclick="Admin.go('users',document.getElementById('ani-users'))">
+        <td><strong>${u.name}</strong></td><td>${clinic?clinic.name:u.clinicId}</td>
+        <td>${u.role}</td><td><span class="badge ${u.active?'bg-g':'bg-o'}">${u.active?'Active':'Inactive'}</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--g300);padding:20px">No users</td></tr>';
+  },
+  adminAuditPreview() {
+    const el = document.getElementById('adm-audit-preview');
+    if (!el) return;
+    const log = DB.auditLog.slice(0, 4);
+    if (!log.length) { el.innerHTML = '<div class="empty"><p>No audit entries yet</p></div>'; return; }
+    el.innerHTML = log.map(e =>
+      `<div class="act-row"><div class="act-ic aib">📋</div><div class="act-txt"><strong>${e.user}</strong> — ${e.action} <span style="color:var(--g500)">(${e.clinic})</span></div><div class="act-t">${e.time}</div></div>`
+    ).join('');
+  },
+  adminClinicsGrid() {
+    const el = document.getElementById('adm-clinics-grid');
+    if (!el) return;
+    if (!DB.clinics.length) { el.innerHTML='<div style="grid-column:1/-1"><div class="card"><div class="cb"><div class="empty"><div class="ei">🏥</div><p>No clinics registered yet</p></div></div></div></div>'; return; }
+    el.innerHTML = DB.clinics.map(c => {
+      const users = DB.users.filter(u=>u.clinicId===c.id);
+      const data = DB.clinicData[c.id] || {};
+      return `<div class="clinic-adm-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="width:36px;height:36px;border-radius:9px;background:${c.color||'var(--gd)'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">${c.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--g900)">${c.name}</div><div style="font-size:10.5px;color:var(--g500)">📍 ${c.location} · ${c.type||'Clinic'}</div></div>
+          <span class="badge ${c.active?'bg-g':'bg-o'}">${c.active?'Active':'Inactive'}</span>
+        </div>
+        <div class="ir"><div class="ir-l">Clinic ID</div><div class="ir-v" style="font-family:'DM Mono',monospace;font-size:11px">${c.id}</div></div>
+        <div class="ir"><div class="ir-l">Phone</div><div class="ir-v">${c.phone||'—'}</div></div>
+        <div class="ir"><div class="ir-l">Email</div><div class="ir-v" style="font-size:11px">${c.email||'—'}</div></div>
+        <div class="ir"><div class="ir-l">Staff Accounts</div><div class="ir-v">${users.length}</div></div>
+        <div class="ir"><div class="ir-l">Patients</div><div class="ir-v">${(data.patients||[]).length}</div></div>
+        <div class="ir" style="border:none"><div class="ir-l">Appointments</div><div class="ir-v">${(data.appointments||[]).length}</div></div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="Modal.open('adm-view-clinic','${c.id}')">View Details</button>
+          <button class="btn btn-b btn-sm" onclick="Modal.open('create-user-for','${c.id}')">＋ Add User</button>
+          <button class="btn btn-g btn-sm" onclick="AActions.toggleClinic('${c.id}')">${c.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-d btn-sm" onclick="AActions.deleteClinic('${c.id}')">Remove</button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+  adminUsersList() {
+    const el = document.getElementById('adm-users-list');
+    if (!el) return;
+    if (!DB.users.length) { el.innerHTML='<div class="card"><div class="cb"><div class="empty"><div class="ei">👤</div><p>No users created yet</p></div></div></div>'; return; }
+    el.innerHTML = DB.users.map(u => {
+      const clinic = DB.clinics.find(c=>c.id===u.clinicId);
+      const colors = ['#2d6a4f','#2563eb','#d97706','#7c3aed','#dc2626','#0891b2'];
+      const bg = colors[DB.users.indexOf(u) % colors.length];
+      const ini = u.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+      const permCount = Object.values(u.permissions).filter(Boolean).length;
+      return `<div class="user-card">
+        <div class="user-card-head">
+          <div class="uav" style="background:${bg}">${ini}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--g900)">${u.name}</div>
+            <div style="font-size:10.5px;color:var(--g500)">${u.role} · ${clinic?clinic.name:'Unknown clinic'}</div>
+          </div>
+          <span class="badge ${u.active?'bg-g':'bg-o'}">${u.active?'Active':'Inactive'}</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="ir" style="flex:1;border:none;padding:0"><div class="ir-l">Username</div><div class="ir-v" style="font-family:'DM Mono',monospace;font-size:11px">${u.username}</div></div>
+          <div class="ir" style="flex:1;border:none;padding:0"><div class="ir-l">Access Code</div><div class="ir-v" style="font-family:'DM Mono',monospace;font-size:11px">••••</div></div>
+          <div class="ir" style="flex:1;border:none;padding:0"><div class="ir-l">Permissions</div><div class="ir-v">${permCount}/7 enabled</div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="Modal.open('edit-user','${u.id}')">✏ Edit</button>
+          <button class="btn btn-pu btn-sm" onclick="Modal.open('edit-perms','${u.id}')">🔑 Permissions</button>
+          <button class="btn btn-g btn-sm" onclick="AActions.toggleUser('${u.id}')">${u.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-d btn-sm" onclick="AActions.deleteUser('${u.id}')">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  },
+  audit() {
+    const el = document.getElementById('audit-body');
+    if (!el) return;
+    if (!DB.auditLog.length) { el.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--g300);padding:24px">No audit entries yet</td></tr>'; return; }
+    el.innerHTML = DB.auditLog.map(e =>
+      `<tr><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--g500)">${e.time}</td><td><strong>${e.user}</strong></td><td>${e.clinic}</td><td>${e.action}</td></tr>`
+    ).join('');
+  },
+  permUserSel() {
+    const el = document.getElementById('perm-user-sel');
+    if (!el) return;
+    el.innerHTML = '<option value="">— Select a user —</option>' + DB.users.map(u => `<option value="${u.id}">${u.name} (${u.username})</option>`).join('');
+  },
+  permPanel(uid) {
+    const el = document.getElementById('perm-panel');
+    if (!el) return;
+    if (!uid) { el.innerHTML='<div class="empty"><div class="ei">🔑</div><p>Select a user above</p></div>'; return; }
+    const u = DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    const clinic = DB.clinics.find(c=>c.id===u.clinicId);
+    const perms = [
+      { key:'appointments', label:'📅 Appointments', desc:'Book and manage appointments' },
+      { key:'patients',     label:'👤 Patients',     desc:'View and edit patient records' },
+      { key:'referrals',    label:'↗ Referrals',     desc:'Create and send referrals' },
+      { key:'labresults',   label:'🧪 Lab Results',  desc:'View patient lab results' },
+      { key:'insurance',    label:'🛡 Insurance',    desc:'Manage insurance providers' },
+      { key:'contact',      label:'📲 Contact Prefs',desc:'Edit contact preferences' },
+      { key:'notifications',label:'🔔 Notifications',desc:'Access notification settings' },
+    ];
+    el.innerHTML = `
+      <div style="background:var(--gp);border-radius:var(--rs);padding:11px 13px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--gd);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${u.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div><div style="font-size:14px;font-weight:700;color:var(--gd)">${u.name}</div><div style="font-size:11px;color:var(--gm)">${u.role} · ${clinic?clinic.name:'?'} · @${u.username}</div></div>
+      </div>
+      <div class="perm-grid" id="perm-grid-${uid}">
+        ${perms.map(p => `
+          <div class="perm-item">
+            <div class="perm-label"><span>${p.label}</span></div>
+            <div class="tog ${u.permissions[p.key]?'on':''}" onclick="AActions.togglePerm('${uid}','${p.key}',this)"></div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p btn-sm" onclick="AActions.savePerms('${uid}')">✓ Save Permissions</button>
+        <button class="btn btn-s btn-sm" onclick="AActions.grantAll('${uid}')">Grant All</button>
+        <button class="btn btn-d btn-sm" onclick="AActions.revokeAll('${uid}')">Revoke All</button>
+      </div>`;
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CLINIC RENDERERS
+// ═══════════════════════════════════════════════════════════════
+const CR = {
+  all() { this.kpis(); this.dash(); this.patSels(); this.buildQA(); },
+  kpis() {
+    if (!cd()) return;
+    document.getElementById('ck-appts').textContent = cd().appointments.length;
+    document.getElementById('ck-refs').textContent = cd().referrals.filter(r=>r.status==='pending'||r.status==='sent').length;
+    document.getElementById('ck-pats').textContent = cd().patients.length;
+    document.getElementById('ck-today').textContent = cd().appointments.filter(a=>a.date===new Date().toISOString().slice(0,10)).length + cd().appointments.filter(a=>a.date==='2026-03-26').length;
+    document.getElementById('cnb-appts').textContent = cd().appointments.length;
+    document.getElementById('cnb-refs').textContent = cd().referrals.length;
+    const unread = cd().notifications.filter(n=>n.type).length;
+    document.getElementById('c-bell-dot').style.display = unread>0?'block':'none';
+  },
+  dash() {
+    if (!cd()) return;
+    this.kpis();
+    // Appointments table
+    const ab = document.getElementById('cp-appts-body');
+    if (ab) {
+      const list = cd().appointments.slice(0,5);
+      ab.innerHTML = list.length ? list.map(a =>
+        `<tr onclick="Modal.open('view-appt','${a.id}')" style="cursor:pointer">
+          <td><strong>${a.time}</strong></td><td><strong>${a.patient}</strong></td>
+          <td>${a.doctor}</td><td><span class="badge bg-g">✓ ${a.status}</span></td>
+        </tr>`
+      ).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--g300);padding:18px">No appointments yet</td></tr>';
+    }
+    // Refs table
+    const rb = document.getElementById('cp-refs-body');
+    if (rb) {
+      rb.innerHTML = cd().referrals.slice(0,4).map(r => {
+        const bc=r.status==='confirmed'?'bg-g':r.status==='sent'?'bg-b':r.status==='scheduled'?'bg-pu':'bg-o';
+        const pc=r.priority==='urgent'?'bg-r':r.priority==='routine'?'bg-g':'bg-b';
+        return `<tr><td><strong>${r.patient}</strong></td><td>${r.dept}</td>
+          <td><span class="badge ${pc}" style="text-transform:capitalize">${r.priority}</span></td>
+          <td><span class="badge ${bc}" style="text-transform:capitalize">${r.status}</span></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--g300);padding:18px">No referrals</td></tr>';
+    }
+    // Activity
+    const af = document.getElementById('cp-activity');
+    if (af) {
+      af.innerHTML = (cd().activity||[]).slice(0,4).map(a =>
+        `<div class="act-row"><div class="act-ic ${a.cls}">${a.ic}</div><div class="act-txt">${a.text}</div><div class="act-t">${a.t}</div></div>`
+      ).join('') || '<div class="empty"><p>No recent activity</p></div>';
+    }
+    // Chart
+    const ch = document.getElementById('cp-chart');
+    if (ch) {
+      const data = cd().chart || [0,0,0,0,0,0,0];
+      const days=['M','T','W','T','F','S','S'];
+      const max = Math.max(...data, 1);
+      ch.innerHTML = days.map((d,i) => `<div class="bw"><div class="bb ${i===3?'ob':i>=5?'hb':''}" style="height:${Math.round(data[i]/max*100)}%"></div><div class="blbl">${d}</div></div>`).join('');
+    }
+  },
+  buildQA() {
+    const el = document.getElementById('qa-grid');
+    if (!el || !Session.user) return;
+    const p = Session.user.permissions;
+    const btns = [
+      { perm:'appointments', label:'📅 Book Appointment', cls:'btn-p', act:"Modal.open('appt')" },
+      { perm:'referrals',    label:'↗ Send Referral',     cls:'btn-s', act:"Clinic.go('referrals',document.getElementById('cni-referrals'))" },
+      { perm:'patients',     label:'👤 Add Patient',      cls:'btn-b', act:"Modal.open('patient')" },
+      { perm:'insurance',    label:'🛡 Insurance',        cls:'btn-g', act:"Clinic.go('insurance',document.getElementById('cni-insurance'))" },
+    ];
+    el.innerHTML = btns.map(b =>
+      `<button class="btn ${b.cls}" style="justify-content:center;opacity:${p[b.perm]!==false?1:.4};cursor:${p[b.perm]!==false?'pointer':'not-allowed'}" onclick="${p[b.perm]!==false?b.act:'toast(\'Access restricted\',\'err\')'}">${b.label}</button>`
+    ).join('');
+  },
+  appts() {
+    const el = document.getElementById('appts-full-body');
+    if (!el || !cd()) return;
+    const q=(document.getElementById('af-q').value||'').toLowerCase();
+    const sf=document.getElementById('af-status').value;
+    let list = cd().appointments;
+    if (q) list=list.filter(a=>a.patient.toLowerCase().includes(q)||a.doctor.toLowerCase().includes(q));
+    if (sf) list=list.filter(a=>a.status===sf);
+    el.innerHTML = list.length ? list.map(a =>
+      `<tr>
+        <td><strong>${a.time}</strong></td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--g500)">${a.date}</td>
+        <td><strong>${a.patient}</strong></td><td>${a.doctor}</td>
+        <td><span class="badge bg-b">${a.dept}</span></td>
+        <td><span class="badge bg-g">✓ ${a.status}</span></td>
+        <td style="text-align:right;display:flex;gap:5px;justify-content:flex-end">
+          <button class="btn btn-s btn-xs" onclick="Modal.open('view-appt','${a.id}')">View</button>
+          <button class="btn btn-d btn-xs" onclick="CActions.delAppt('${a.id}')">Delete</button>
+        </td>
+      </tr>`
+    ).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--g300);padding:24px">No appointments found</td></tr>';
+  },
+  refs() {
+    const el = document.getElementById('refs-full-body');
+    if (!el || !cd()) return;
+    const q=(document.getElementById('rf-q')?.value||'').toLowerCase();
+    let list = cd().referrals;
+    if (q) list=list.filter(r=>r.patient.toLowerCase().includes(q)||r.specialist.toLowerCase().includes(q));
+    el.innerHTML = list.length ? list.map(r => {
+      const bc=r.status==='confirmed'?'bg-g':r.status==='sent'?'bg-b':r.status==='scheduled'?'bg-pu':'bg-o';
+      const pc=r.priority==='urgent'?'bg-r':r.priority==='routine'?'bg-g':'bg-b';
+      return `<tr>
+        <td><strong>${r.patient}</strong></td><td>${r.specialist}</td>
+        <td><span class="badge ${pc}" style="text-transform:capitalize">${r.priority}</span></td>
+        <td><span class="badge ${bc}" style="text-transform:capitalize">${r.status}</span></td>
+        <td style="text-align:right;display:flex;gap:4px;justify-content:flex-end">
+          <button class="btn btn-s btn-xs" onclick="CActions.advRef('${r.id}')">Advance</button>
+          <button class="btn btn-d btn-xs" onclick="CActions.delRef('${r.id}')">✕</button>
+        </td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--g300);padding:24px">No referrals</td></tr>';
+  },
+  patSels() {
+    ['rp-patient','ma-patient'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && cd()) el.innerHTML = cd().patients.map(p => `<option value="${p.id}">${p.name} — ${p.dob}</option>`).join('');
+    });
+  },
+  patients(q) {
+    const el = document.getElementById('pat-grid-c');
+    if (!el || !cd()) return;
+    if (q===undefined) q=(document.getElementById('pf-q')?.value||'');
+    let list = cd().patients;
+    if (q) list=list.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.id.toLowerCase().includes(q.toLowerCase()));
+    if (!list.length) { el.innerHTML='<div style="grid-column:1/-1"><div class="card"><div class="cb"><div class="empty"><div class="ei">👤</div><p>No patients found</p></div></div></div></div>'; return; }
+    el.innerHTML = list.map(p => {
+      const ini=p.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+      const hist=[
+        ...cd().appointments.filter(a=>a.pid===p.id).map(a=>({type:'tappt',date:a.date,title:`Appt — ${a.doctor}`,sub:a.dept,t:a.time})),
+        ...cd().referrals.filter(r=>r.pid===p.id).map(r=>({type:'tref',date:r.date,title:`Referral to ${r.specialist}`,sub:`${r.dept}`,t:''})),
+      ].sort((a,b)=>b.date.localeCompare(a.date));
+      const canAdd = !Session.user || Session.user.permissions.patients !== false;
+      return `<div class="card card-last">
+        <div class="ch" style="background:linear-gradient(135deg,#1b4433,#2d6a4f)">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${ini}</div>
+          <div style="flex:1"><h3>${p.name}</h3><div style="font-size:10px;color:rgba(255,255,255,.6)">#${p.id} · DOB ${p.dob}</div></div>
+          <button class="chbtn" onclick="Modal.open('pat-profile','${p.id}')">Full Profile</button>
+        </div>
+        <div class="cb">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px">
+            <span class="badge bg-b">🩸 ${p.blood}</span><span class="badge bg-g">🛡 ${p.insurance}</span><span class="badge bg-gray">${p.gender}</span>
+          </div>
+          <div class="ir"><div class="ir-l">Phone</div><div class="ir-v">${p.phone}</div></div>
+          <div class="ir"><div class="ir-l">Email</div><div class="ir-v">${p.email}</div></div>
+          <div class="ir" style="border:none"><div class="ir-l">Notes</div><div class="ir-v" style="font-size:11px;max-width:200px;text-align:right">${p.notes||'—'}</div></div>
+          <div class="divider"></div>
+          <div class="sl">Patient History</div>
+          <div class="tl" style="margin-top:7px">
+            ${hist.length?hist.slice(0,3).map(h=>`<div class="tl-item"><div class="tl-dot ${h.type}"></div><div class="tl-con"><div class="tl-title">${h.title}</div><div class="tl-sub">${h.sub}</div><div class="tl-date">${h.date}${h.t?' · '+h.t:''}</div></div></div>`).join(''):'<div style="font-size:12px;color:var(--g300)">No history yet</div>'}
+          </div>
+          <div style="display:flex;gap:6px;margin-top:11px;flex-wrap:wrap">
+            <button class="btn btn-b btn-sm" onclick="CActions.sendInfo('${p.id}')">📤 Send Info</button>
+            <button class="btn btn-s btn-sm" onclick="Modal.open('appt','${p.id}')">📅 Book Appt</button>
+            <button class="btn btn-g btn-sm" onclick="Clinic.go('contact',document.getElementById('cni-contact'));Session.cpPat='${p.id}';CR.cpList();setTimeout(()=>CR.cpPanel('${p.id}'),100)">📲 Prefs</button>
+            <button class="btn btn-d btn-sm" onclick="CActions.delPat('${p.id}')">🗑 Remove</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  },
+  cpList(q='') {
+    const el = document.getElementById('cp-list-c');
+    if (!el || !cd()) return;
+    const list = q ? cd().patients.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())) : cd().patients;
+    el.innerHTML = list.map(p => {
+      const ini=p.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+      const sel = Session.cpPat === p.id;
+      return `<div onclick="Session.cpPat='${p.id}';CR.cpList(document.getElementById('cpq').value||'');CR.cpPanel('${p.id}')" style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:${sel?'var(--gp)':'var(--w)'};border-radius:var(--rx);border:1.5px solid ${sel?'var(--g)':'var(--g200)'};cursor:pointer;transition:all .15s;margin-bottom:4px">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gd)">${ini}</div>
+        <div><div style="font-size:12.5px;font-weight:600;color:var(--g900)">${p.name}</div><div style="font-size:10.5px;color:var(--g500)">${p.insurance}</div></div>
+        ${sel?'<span class="badge bg-g" style="margin-left:auto">Selected</span>':''}
+      </div>`;
+    }).join('') || '<div class="empty"><p>No patients found</p></div>';
+  },
+  cpPanel(id) {
+    const p = cd() ? cd().patients.find(x=>x.id===id) : null;
+    if (!p) return;
+    document.getElementById('cp-sel-name').textContent = '— ' + p.name;
+    const channels=[
+      {key:'sms',icon:'💬',label:'SMS',desc:'Text message reminders',bg:'#dcfce7'},
+      {key:'whatsapp',icon:'📱',label:'WhatsApp',desc:'WhatsApp messages',bg:'#d1fae5'},
+      {key:'email',icon:'📧',label:'Email',desc:'Email summaries & reports',bg:'#dbeafe'},
+      {key:'phone',icon:'📞',label:'Phone Call',desc:'Direct phone calls',bg:'#ffedd5'},
+      {key:'post',icon:'✉',label:'Post / Mail',desc:'Physical correspondence',bg:'#f3e8ff'},
+    ];
+    document.getElementById('cp-panel-c').innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;background:var(--gp);border-radius:var(--rs);padding:11px 13px;margin-bottom:13px">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gl),var(--g));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${p.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div><div style="font-size:14px;font-weight:700;color:var(--gd)">${p.name}</div><div style="font-size:11px;color:var(--gm)">${p.insurance} · ${p.phone}</div></div>
+      </div>
+      <div class="sl" style="margin-bottom:10px">Preferred Contact Methods</div>
+      ${channels.map(c=>`
+        <div style="border-radius:var(--rs);border:1.5px solid var(--g200);padding:11px;display:flex;align-items:center;gap:10px;background:var(--w);margin-bottom:7px;transition:all .15s">
+          <div style="width:36px;height:36px;border-radius:9px;background:${c.bg};display:flex;align-items:center;justify-content:center;font-size:16px">${c.icon}</div>
+          <div style="flex:1"><div style="font-size:12.5px;font-weight:600;color:var(--g900)">${c.label}</div><div style="font-size:11px;color:var(--g500)">${c.desc}</div></div>
+          <div class="tog ${p.cp[c.key]?'on':''}" onclick="CActions.toggleCP('${id}','${c.key}',this)"></div>
+        </div>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-p btn-sm" onclick="CActions.saveCP('${id}')">✓ Save</button>
+        <button class="btn btn-b btn-sm" onclick="CActions.sendInfo('${id}')">📤 Send Info</button>
+      </div>`;
+  },
+  insurance() {
+    const el = document.getElementById('ins-grid-c');
+    if (!el || !cd()) return;
+    if (!cd().insurances.length) { el.innerHTML='<div style="grid-column:1/-1"><div class="empty"><div class="ei">🛡</div><p>No insurance providers</p></div></div>'; return; }
+    el.innerHTML = cd().insurances.map(ins=>`
+      <div style="border-radius:var(--rs);border:1.5px solid var(--g200);padding:14px;background:var(--w);transition:all .15s" onmouseover="this.style.borderColor='var(--gl)'" onmouseout="this.style.borderColor='var(--g200)'">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:34px;height:34px;border-radius:7px;background:${ins.color};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff">${ins.code}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--g900)">${ins.name}</div><div style="font-size:10.5px;color:var(--g500)">${ins.type}</div></div>
+          <span class="badge ${ins.active?'bg-g':'bg-o'}">${ins.active?'Active':'Inactive'}</span>
+        </div>
+        <div class="ir"><div class="ir-l">Coverage</div><div class="ir-v">${ins.coverage}</div></div>
+        <div class="ir"><div class="ir-l">Phone</div><div class="ir-v">${ins.phone}</div></div>
+        <div class="ir" style="border:none"><div class="ir-l">Contract End</div><div class="ir-v">${ins.end}</div></div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-g btn-sm" onclick="CActions.toggleIns('${ins.id}')">${ins.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-d btn-sm" onclick="CActions.delIns('${ins.id}')">Remove</button>
+        </div>
+      </div>`).join('');
+  },
+  labResults() {
+    const el = document.getElementById('lab-content');
+    if (!el) return;
+    const u = Session.user;
+    if (u && u.permissions.labresults === false) {
+      el.innerHTML=`<div class="no-access"><div class="na-icon">🔒</div><div class="na-title">Lab Results Restricted</div><div class="na-sub">You do not have permission to view lab results. Contact your system administrator.</div></div>`;
+      return;
+    }
+    if (!cd() || !cd().labResults.length) { el.innerHTML='<div class="card"><div class="cb"><div class="empty"><div class="ei">🧪</div><p>No lab results available</p></div></div></div>'; return; }
+    el.innerHTML = `<div class="card card-last"><div class="ch"><div class="ch-ico">🧪</div><h3>Lab Results</h3></div><div class="cb" style="padding:0"><table class="tbl"><thead><tr><th>Patient</th><th>Test</th><th>Result</th><th>Value</th><th>Date</th><th>Status</th></tr></thead><tbody>
+      ${cd().labResults.map(l=>`<tr><td><strong>${l.patient}</strong></td><td>${l.test}</td><td><span class="badge ${l.result==='Normal'?'bg-g':'bg-o'}">${l.result}</span></td><td>${l.value}</td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--g500)">${l.date}</td><td><span class="badge bg-b">${l.status}</span></td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  },
+  notifs() {
+    const el = document.getElementById('c-notif-list');
+    if (!el || !cd()) return;
+    if (!cd().notifications.length) { el.innerHTML='<div class="empty"><div class="ei">🔔</div><p>No notifications</p></div>'; return; }
+    el.innerHTML = cd().notifications.map((n,i)=>`
+      <div class="nitem ${n.type}">
+        <div class="ndot ${n.dot}"></div>
+        <div style="flex:1"><div class="ntxt"><strong>${n.title}</strong> — ${n.msg}</div><div class="nmeta">${n.time} · ${n.cat}</div></div>
+        <button onclick="CActions.dismissNotif(${i})" style="background:none;border:none;cursor:pointer;color:var(--g300);font-size:12px;padding:2px 4px">✕</button>
+      </div>`).join('');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CLINIC ACTIONS
+// ═══════════════════════════════════════════════════════════════
+const CActions = {
+  addAppt(patId, specStr, date, time, status) {
+    const pat = cd().patients.find(p=>p.id===patId);
+    const parts = specStr.split('—');
+    const id = 'A' + String(cd().appointments.length+1).padStart(3,'0');
+    cd().appointments.push({ id, time, date, patient:pat?pat.name:'Unknown', pid:patId, doctor:parts[0].trim(), dept:parts[1]?parts[1].trim():specStr, status:status||'confirmed' });
+    cd().activity.unshift({ ic:'📅', cls:'aib', text:`<strong>Appointment</strong> booked — ${pat?pat.name:'?'}`, t:nowTime() });
+    cd().notifications.unshift({ type:'unread', dot:'ndg', title:'Appointment Booked', msg:`${pat?pat.name:'?'} · ${parts[0].trim()} · ${time}`, time:'Just now', cat:'Appointments' });
+    auditLog(Session.user.username, Session.clinic.name, `Booked appointment for ${pat?pat.name:'?'}`);
+    CR.all(); R.adminKpis();
+    toast(`✓ Appointment booked for ${pat?pat.name:'?'}`);
+    Modal.close();
+  },
+  delAppt(id) {
+    const a = cd().appointments.find(x=>x.id===id);
+    if (!confirm(`Delete appointment for ${a?a.patient:''}?`)) return;
+    cd().appointments = cd().appointments.filter(x=>x.id!==id);
+    CR.all(); if (Clinic.cur==='appointments') CR.appts();
+    toast('Appointment removed','inf');
+  },
+  sendRef() {
+    const patId = document.getElementById('rp-patient').value;
+    const pat = cd().patients.find(p=>p.id===patId);
+    const specStr = document.getElementById('rp-specialist').value;
+    const reason = document.getElementById('rp-reason').value.trim();
+    if (!reason) { toast('Please enter a reason','err'); return; }
+    const parts = specStr.split('—');
+    const id = 'R'+String(cd().referrals.length+1).padStart(3,'0');
+    cd().referrals.unshift({ id, patient:pat?pat.name:'Unknown', pid:patId, dept:parts[1]?parts[1].trim():specStr, specialist:parts[0].trim(), status:'sent', priority:Session.priority, date:new Date().toISOString().slice(0,10), reason });
+    cd().activity.unshift({ ic:'↗', cls:'aio', text:`<strong>Referral</strong> sent — ${pat?pat.name:'?'} to ${parts[1]?parts[1].trim():specStr}`, t:nowTime() });
+    cd().notifications.unshift({ type:'unread', dot:'ndb', title:'Referral Sent', msg:`${pat?pat.name:'?'} to ${parts[1]?parts[1].trim():specStr}`, time:'Just now', cat:'Referrals' });
+    auditLog(Session.user.username, Session.clinic.name, `Sent referral for ${pat?pat.name:'?'}`);
+    CR.all(); CR.refs();
+    this.clearRef();
+    toast(`↗ Referral sent for ${pat?pat.name:'?'}`);
+  },
+  advRef(id) {
+    const r = cd().referrals.find(x=>x.id===id);
+    if (!r) return;
+    const seq=['pending','sent','scheduled','confirmed'];
+    const i=seq.indexOf(r.status);
+    if (i<seq.length-1) r.status=seq[i+1];
+    CR.refs(); CR.dash();
+    toast(`Referral → ${r.status}`);
+  },
+  delRef(id) {
+    if (!confirm('Delete this referral?')) return;
+    cd().referrals = cd().referrals.filter(r=>r.id!==id);
+    CR.all(); CR.refs();
+    toast('Referral removed','inf');
+  },
+  clearRef() {
+    const el=document.getElementById('rp-reason'); if(el)el.value='';
+    Session.priority='urgent';
+    document.querySelectorAll('#ref-pri-row .pri-btn').forEach((b,i)=>{ b.classList.remove('pu','pr','pf'); if(i===0)b.classList.add('pu'); });
+  },
+  addPat(name,dob,phone,email,gender,blood,ins,gp,notes) {
+    if (!name) { toast('Patient name required','err'); return false; }
+    const id = 'PT-'+String(cd().patients.length+1).padStart(3,'0');
+    cd().patients.push({ id, name, dob:dob||'—', gender, blood, phone:phone||'—', email:email||'—', insurance:ins, gp, notes:notes||'', cp:{sms:true,whatsapp:false,email:true,phone:true,post:false} });
+    cd().activity.unshift({ ic:'👤', cls:'aig', text:`<strong>New patient</strong> — ${name}`, t:nowTime() });
+    auditLog(Session.user.username, Session.clinic.name, `Added patient ${name}`);
+    CR.all(); CR.patSels();
+    toast(`✓ ${name} added`);
+    Modal.close();
+    return true;
+  },
+  delPat(id) {
+    const p=cd().patients.find(x=>x.id===id);
+    if (!confirm(`Remove ${p?p.name:''} from the database?`)) return;
+    cd().patients=cd().patients.filter(x=>x.id!==id);
+    auditLog(Session.user.username, Session.clinic.name, `Removed patient ${p?p.name:'?'}`);
+    CR.all(); CR.patSels(); if(Clinic.cur==='patients')CR.patients();
+    toast(`${p?p.name:''} removed`,'inf');
+  },
+  sendInfo(id) {
+    const p=cd().patients.find(x=>x.id===id);
+    if (!p) return;
+    const active=Object.entries(p.cp).filter(([,v])=>v).map(([k])=>k);
+    toast(`📤 Info sent for ${p.name} via ${active.join(', ')||'no channel'}`, 'inf');
+    auditLog(Session.user.username, Session.clinic.name, `Sent info for ${p.name}`);
+  },
+  toggleCP(id,key,el) {
+    const p=cd().patients.find(x=>x.id===id);
+    if (p) { p.cp[key]=!p.cp[key]; el.classList.toggle('on'); }
+  },
+  saveCP(id) {
+    const p=cd().patients.find(x=>x.id===id);
+    if (!p) return;
+    toast(`✓ Contact prefs saved for ${p.name}`);
+  },
+  toggleIns(id) {
+    const ins=cd().insurances.find(x=>x.id===id);
+    if (!ins) return;
+    ins.active=!ins.active;
+    CR.insurance();
+    toast(`${ins.name} ${ins.active?'activated':'deactivated'}`);
+  },
+  delIns(id) {
+    const ins=cd().insurances.find(x=>x.id===id);
+    if (!confirm(`Remove ${ins?ins.name:''}?`)) return;
+    cd().insurances=cd().insurances.filter(x=>x.id!==id);
+    CR.insurance();
+    toast(`${ins?ins.name:''} removed`,'inf');
+  },
+  addIns(code,name,type,cov,end,phone,email) {
+    const colors=['#0f766e','#1d4ed8','#9333ea','#dc2626','#0891b2'];
+    const id='INS-'+String(cd().insurances.length+1).padStart(3,'0');
+    cd().insurances.push({ id, code:code.toUpperCase(), name, type, color:colors[cd().insurances.length%colors.length], active:true, patients:0, claims:0, coverage:cov, end:end||'TBD', phone:phone||'—', email:email||'—' });
+    CR.insurance();
+    toast(`✓ ${name} added`);
+    Modal.close();
+  },
+  dismissNotif(i) {
+    cd().notifications.splice(i,1);
+    CR.notifs(); CR.kpis();
+  },
+  clearNotifs() {
+    cd().notifications=[];
+    CR.notifs(); CR.kpis();
+    toast('Notifications cleared','inf');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN ACTIONS
+// ═══════════════════════════════════════════════════════════════
+const AActions = {
+  createClinic(name,loc,type,phone,email,color) {
+    if (!name) { toast('Clinic name required','err'); return; }
+    const id='CL-'+String(DB.clinics.length+1).padStart(3,'0');
+    DB.clinics.push({ id,name,location:loc||'—',type:type||'Clinic',phone:phone||'—',email:email||'—',active:true,color:color||'#2d6a4f' });
+    DB.clinicData[id] = { patients:[],appointments:[],referrals:[],insurances:[],labResults:[],notifications:[],activity:[],chart:[0,0,0,0,0,0,0] };
+    auditLog('MediSoela2026','System',`Created clinic: ${name}`);
+    R.adminKpis(); R.adminClinicTable();
+    if(Admin.cur==='clinics') R.adminClinicsGrid();
+    toast(`✓ ${name} created`);
+    Modal.close();
+  },
+  createUser(username,code,name,role,clinicId,perms) {
+    if (!username||!code||!name||!clinicId) { toast('All fields required','err'); return; }
+    if (DB.users.find(u=>u.username===username)) { toast('Username already exists','err'); return; }
+    const id='U'+String(DB.users.length+1).padStart(3,'0');
+    DB.users.push({ id, username, code, name, role:role||'Front Desk', clinicId, active:true, permissions:perms||{appointments:true,patients:true,referrals:true,labresults:false,insurance:true,contact:true,notifications:true} });
+    auditLog('MediSoela2026','System',`Created user: ${username} for clinic ${clinicId}`);
+    R.adminKpis(); R.adminUserTable();
+    if(Admin.cur==='users') R.adminUsersList();
+    toast(`✓ Account created for ${name}`);
+    Modal.close();
+  },
+  editUser(uid, name, role, code) {
+    const u=DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    if (name) u.name=name;
+    if (role) u.role=role;
+    if (code && code.length>=4) u.code=code;
+    R.adminUsersList();
+    toast(`✓ ${u.name} updated`);
+    Modal.close();
+  },
+  deleteUser(id) {
+    const u=DB.users.find(x=>x.id===id);
+    if (!confirm(`Delete account for ${u?u.name:''}?`)) return;
+    DB.users=DB.users.filter(x=>x.id!==id);
+    auditLog('MediSoela2026','System',`Deleted user: ${u?u.username:'?'}`);
+    R.adminKpis(); R.adminUserTable(); R.adminUsersList();
+    toast(`${u?u.name:''} account deleted`,'inf');
+  },
+  toggleUser(id) {
+    const u=DB.users.find(x=>x.id===id);
+    if (!u) return;
+    u.active=!u.active;
+    R.adminUsersList(); R.adminUserTable();
+    toast(`${u.name} ${u.active?'activated':'deactivated'}`);
+  },
+  deleteClinic(id) {
+    const c=DB.clinics.find(x=>x.id===id);
+    if (!confirm(`Remove ${c?c.name:''} and ALL its data? This cannot be undone.`)) return;
+    DB.clinics=DB.clinics.filter(x=>x.id!==id);
+    delete DB.clinicData[id];
+    DB.users=DB.users.filter(u=>u.clinicId!==id);
+    auditLog('MediSoela2026','System',`Deleted clinic: ${c?c.name:'?'}`);
+    R.adminKpis(); R.adminClinicTable(); R.adminClinicsGrid(); R.adminUserTable();
+    toast(`${c?c.name:''} removed`,'inf');
+  },
+  toggleClinic(id) {
+    const c=DB.clinics.find(x=>x.id===id);
+    if (!c) return;
+    c.active=!c.active;
+    R.adminClinicsGrid(); R.adminClinicTable();
+    toast(`${c.name} ${c.active?'activated':'deactivated'}`);
+  },
+  togglePerm(uid,key,el) {
+    const u=DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    u.permissions[key]=!u.permissions[key];
+    el.classList.toggle('on');
+  },
+  savePerms(uid) {
+    const u=DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    auditLog('MediSoela2026','System',`Updated permissions for ${u.username}`);
+    toast(`✓ Permissions saved for ${u.name}`);
+  },
+  grantAll(uid) {
+    const u=DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    Object.keys(u.permissions).forEach(k=>u.permissions[k]=true);
+    R.permPanel(uid);
+    toast(`All permissions granted to ${u.name}`);
+  },
+  revokeAll(uid) {
+    const u=DB.users.find(x=>x.id===uid);
+    if (!u) return;
+    Object.keys(u.permissions).forEach(k=>u.permissions[k]=false);
+    R.permPanel(uid);
+    toast(`All permissions revoked for ${u.name}`,'warn');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════════
+const Modal = {
+  open(type, arg) {
+    const box = document.getElementById('mo-box');
+    const title = document.getElementById('mo-title');
+    const body = document.getElementById('mo-body');
+    const foot = document.getElementById('mo-foot');
+    box.classList.remove('wide');
+    document.getElementById('modal').classList.add('open');
+
+    if (type==='appt') {
+      title.textContent = '📅 Book Appointment';
+      const patOpts = cd() ? cd().patients.map(p=>`<option value="${p.id}" ${p.id===arg?'selected':''}>${p.name} — ${p.dob}</option>`).join('') : '';
+      body.innerHTML = `
+        <div class="fg"><div class="fl">Patient *</div><select class="fsel" id="ma-patient">${patOpts}</select></div>
+        <div class="fg"><div class="fl">Specialist / Doctor</div><select class="fsel" id="ma-spec"><option>Dr. N. Jansen — Cardiology</option><option>Dr. Blokland — Internal Medicine</option><option>Dr. Ahmad — Neurology</option><option>Dr. Lim — Cardiology</option><option>Dr. Osei — Orthopedics</option><option>Dr. Harms — Obstetrics</option><option>Dr. Patel — Surgery</option></select></div>
+        <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Date *</div><input type="date" class="fi" id="ma-date" value="${new Date().toISOString().slice(0,10)}"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Time *</div><select class="fsel" id="ma-time"><option>08:00</option><option>08:30</option><option selected>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option>13:00</option><option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option></select></div></div>
+        <div class="fg" style="margin-top:11px"><div class="fl">Status</div><select class="fsel" id="ma-status"><option value="confirmed">Confirmed</option><option value="pending">Pending</option></select></div>
+        <div class="fg"><div class="fl">Notes</div><textarea class="fta" id="ma-notes" placeholder="Any instructions…"></textarea></div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="CActions.addAppt(document.getElementById('ma-patient').value,document.getElementById('ma-spec').value,document.getElementById('ma-date').value,document.getElementById('ma-time').value,document.getElementById('ma-status').value)">✓ Confirm</button>`;
+    }
+
+    else if (type==='view-appt') {
+      const a=cd()?cd().appointments.find(x=>x.id===arg):null;
+      if (!a) return;
+      title.textContent = '📅 Appointment Details';
+      body.innerHTML = `<div class="ir"><div class="ir-l">Patient</div><div class="ir-v"><strong>${a.patient}</strong></div></div><div class="ir"><div class="ir-l">Doctor</div><div class="ir-v">${a.doctor}</div></div><div class="ir"><div class="ir-l">Department</div><div class="ir-v">${a.dept}</div></div><div class="ir"><div class="ir-l">Date</div><div class="ir-v">${a.date}</div></div><div class="ir"><div class="ir-l">Time</div><div class="ir-v">${a.time}</div></div><div class="ir" style="border:none"><div class="ir-l">Status</div><div class="ir-v"><span class="badge bg-g">✓ ${a.status}</span></div></div>`;
+      foot.innerHTML = `<button class="btn btn-d" onclick="CActions.delAppt('${a.id}');Modal.close()">Delete</button><button class="btn btn-g" onclick="Modal.close()">Close</button>`;
+    }
+
+    else if (type==='patient') {
+      title.textContent = '👤 Add New Patient';
+      body.innerHTML = `
+        <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Full Name *</div><input class="fi" id="np-name" placeholder="e.g. Anna de Vries"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Date of Birth</div><input type="date" class="fi" id="np-dob"/></div></div>
+        <div class="fgrow" style="margin-top:11px"><div class="fg" style="margin:0"><div class="fl">Phone</div><input class="fi" id="np-phone" placeholder="+31 6 …"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Email</div><input class="fi" id="np-email" placeholder="email@…"/></div></div>
+        <div class="fgrow" style="margin-top:11px">
+          <div class="fg" style="margin:0"><div class="fl">Gender</div><select class="fsel" id="np-gender"><option>Female</option><option>Male</option><option>Non-binary</option><option>Prefer not to say</option></select></div>
+          <div class="fg" style="margin:0"><div class="fl">Blood Type</div><select class="fsel" id="np-blood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>Unknown</option></select></div>
+        </div>
+        <div class="fgrow" style="margin-top:11px">
+          <div class="fg" style="margin:0"><div class="fl">Insurance</div><select class="fsel" id="np-ins"><option>SZF</option><option>100ern</option><option>AltCare Private</option><option>NorthMed Plus</option></select></div>
+          <div class="fg" style="margin:0"><div class="fl">Primary Doctor</div><select class="fsel" id="np-gp"><option>Dr. L. Gutiérrez</option><option>Dr. Blokland</option><option>Dr. Ahmad</option><option>Dr. Lim</option><option>Dr. Osei</option></select></div>
+        </div>
+        <div class="fg" style="margin-top:11px"><div class="fl">Medical Notes</div><textarea class="fta" id="np-notes" placeholder="Conditions, allergies…"></textarea></div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="CActions.addPat(document.getElementById('np-name').value,document.getElementById('np-dob').value,document.getElementById('np-phone').value,document.getElementById('np-email').value,document.getElementById('np-gender').value,document.getElementById('np-blood').value,document.getElementById('np-ins').value,document.getElementById('np-gp').value,document.getElementById('np-notes').value)">✓ Add Patient</button>`;
+    }
+
+    else if (type==='pat-profile') {
+      const p=cd()?cd().patients.find(x=>x.id===arg):null;
+      if (!p) return;
+      box.classList.add('wide');
+      title.textContent = '👤 ' + p.name;
+      const hist=[...cd().appointments.filter(a=>a.pid===p.id).map(a=>({type:'tappt',date:a.date,title:`Appt — ${a.doctor}`,sub:a.dept,t:a.time})),...cd().referrals.filter(r=>r.pid===p.id).map(r=>({type:'tref',date:r.date,title:`Referral to ${r.specialist}`,sub:r.dept,t:''}))].sort((a,b)=>b.date.localeCompare(a.date));
+      body.innerHTML = `<div class="g2">
+        <div>
+          <div class="sl">Patient Info</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 12px"><span class="badge bg-b">🩸 ${p.blood}</span><span class="badge bg-g">🛡 ${p.insurance}</span><span class="badge bg-gray">${p.gender}</span></div>
+          <div class="ir"><div class="ir-l">ID</div><div class="ir-v" style="font-family:'DM Mono',monospace">#${p.id}</div></div>
+          <div class="ir"><div class="ir-l">DOB</div><div class="ir-v">${p.dob}</div></div>
+          <div class="ir"><div class="ir-l">Phone</div><div class="ir-v">${p.phone}</div></div>
+          <div class="ir"><div class="ir-l">Email</div><div class="ir-v">${p.email}</div></div>
+          <div class="ir"><div class="ir-l">Doctor</div><div class="ir-v">${p.gp}</div></div>
+          <div class="ir" style="border:none"><div class="ir-l">Notes</div><div class="ir-v" style="font-size:11px;max-width:200px;text-align:right">${p.notes||'—'}</div></div>
+          <div class="divider"></div>
+          <div class="sl">Contact Preferences</div>
+          ${Object.entries(p.cp).map(([k,v])=>`<div class="ir"><div class="ir-l" style="text-transform:capitalize">${k}</div><span class="badge ${v?'bg-g':'bg-gray'}">${v?'✓ Enabled':'Disabled'}</span></div>`).join('')}
+        </div>
+        <div>
+          <div class="sl">Medical History (${hist.length} records)</div>
+          <div class="tl" style="margin-top:8px;max-height:360px;overflow-y:auto;padding-right:4px">
+            ${hist.length?hist.map(h=>`<div class="tl-item"><div class="tl-dot ${h.type}"></div><div class="tl-con"><div class="tl-title">${h.title}</div><div class="tl-sub">${h.sub}</div><div class="tl-date">${h.date}${h.t?' · '+h.t:''}</div></div></div>`).join(''):'<div style="font-size:12px;color:var(--g300)">No history yet</div>'}
+          </div>
+        </div>
+      </div>`;
+      foot.innerHTML = `<button class="btn btn-b" onclick="CActions.sendInfo('${p.id}')">📤 Send Info</button><button class="btn btn-s" onclick="Modal.close();Modal.open('appt','${p.id}')">📅 Book Appt</button><button class="btn btn-d" onclick="Modal.close();CActions.delPat('${p.id}')">🗑 Remove</button><button class="btn btn-g" onclick="Modal.close()">Close</button>`;
+    }
+
+    else if (type==='ins') {
+      title.textContent = '🛡 Add Insurance Provider';
+      body.innerHTML = `
+        <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Provider Name *</div><input class="fi" id="ni-name" placeholder="e.g. HealthFirst"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Short Code *</div><input class="fi" id="ni-code" placeholder="HFN" maxlength="5"/></div></div>
+        <div class="fgrow" style="margin-top:11px"><div class="fg" style="margin:0"><div class="fl">Type</div><select class="fsel" id="ni-type"><option>Public</option><option>Semi-Public</option><option>Private</option></select></div>
+        <div class="fg" style="margin:0"><div class="fl">Coverage</div><select class="fsel" id="ni-cov"><option>Full</option><option>Extended</option><option>Premium</option><option>Basic</option><option>Pending</option></select></div></div>
+        <div class="fgrow" style="margin-top:11px"><div class="fg" style="margin:0"><div class="fl">Phone</div><input class="fi" id="ni-phone"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Email</div><input class="fi" id="ni-email"/></div></div>
+        <div class="fg" style="margin-top:11px"><div class="fl">Contract End</div><input type="date" class="fi" id="ni-end"/></div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="CActions.addIns(document.getElementById('ni-code').value,document.getElementById('ni-name').value,document.getElementById('ni-type').value,document.getElementById('ni-cov').value,document.getElementById('ni-end').value,document.getElementById('ni-phone').value,document.getElementById('ni-email').value)">✓ Add</button>`;
+    }
+
+    else if (type==='create-clinic') {
+      title.textContent = '🏥 Create New Clinic';
+      body.innerHTML = `
+        <div class="fg"><div class="fl">Clinic Name *</div><input class="fi" id="cc-name" placeholder="e.g. Rotterdam South Medical"/></div>
+        <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Location</div><input class="fi" id="cc-loc" placeholder="City, Country"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Type</div><select class="fsel" id="cc-type"><option>General Practice</option><option>Specialist</option><option>Hospital</option><option>Clinic</option><option>Pharmacy</option></select></div></div>
+        <div class="fgrow" style="margin-top:11px"><div class="fg" style="margin:0"><div class="fl">Phone</div><input class="fi" id="cc-phone" placeholder="+31 …"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Email</div><input class="fi" id="cc-email" placeholder="admin@clinic.nl"/></div></div>
+        <div class="fg" style="margin-top:11px"><div class="fl">Brand Color</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            ${['#2d6a4f','#2563eb','#d97706','#7c3aed','#dc2626','#0891b2','#be185d'].map(c=>`<div onclick="document.getElementById('cc-color').value='${c}';document.querySelectorAll('.color-swatch').forEach(s=>s.style.outline='none');this.style.outline='3px solid ${c}'" class="color-swatch" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;transition:outline .15s"></div>`).join('')}
+            <input type="hidden" id="cc-color" value="#2d6a4f"/>
+          </div>
+        </div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="AActions.createClinic(document.getElementById('cc-name').value,document.getElementById('cc-loc').value,document.getElementById('cc-type').value,document.getElementById('cc-phone').value,document.getElementById('cc-email').value,document.getElementById('cc-color').value)">✓ Create Clinic</button>`;
+    }
+
+    else if (type==='create-user' || type==='create-user-for') {
+      title.textContent = '👤 Create User Account';
+      const clinicOpts = DB.clinics.map(c=>`<option value="${c.id}" ${c.id===arg?'selected':''}>${c.name}</option>`).join('');
+      body.innerHTML = `
+        <div class="fgrow"><div class="fg" style="margin:0"><div class="fl">Full Name *</div><input class="fi" id="cu-name" placeholder="e.g. Sophie van den Berg"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Role</div><select class="fsel" id="cu-role"><option>Front Desk</option><option>Nurse</option><option>Doctor</option><option>Admin</option><option>Receptionist</option></select></div></div>
+        <div class="fgrow" style="margin-top:11px"><div class="fg" style="margin:0"><div class="fl">Username *</div><input class="fi" id="cu-user" placeholder="e.g. clinic_fd" autocomplete="off"/></div>
+        <div class="fg" style="margin:0"><div class="fl">Access Code *</div><input class="fi" id="cu-code" placeholder="min. 4 characters" type="password" autocomplete="new-password"/></div></div>
+        <div class="fg" style="margin-top:11px"><div class="fl">Assigned Clinic *</div><select class="fsel" id="cu-clinic">${clinicOpts}</select></div>
+        <div class="divider"></div>
+        <div class="sl" style="margin-bottom:10px">Initial Permissions</div>
+        <div class="perm-grid">
+          ${[{key:'appointments',label:'📅 Appointments'},{key:'patients',label:'👤 Patients'},{key:'referrals',label:'↗ Referrals'},{key:'labresults',label:'🧪 Lab Results'},{key:'insurance',label:'🛡 Insurance'},{key:'contact',label:'📲 Contact Prefs'},{key:'notifications',label:'🔔 Notifications'}].map(p=>`
+            <div class="perm-item">
+              <div class="perm-label">${p.label}</div>
+              <div class="tog ${p.key!=='labresults'?'on':''}" id="cu-p-${p.key}" onclick="this.classList.toggle('on')"></div>
+            </div>`).join('')}
+        </div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="Modal._createUser()">✓ Create Account</button>`;
+    }
+
+    else if (type==='edit-user') {
+      const u=DB.users.find(x=>x.id===arg);
+      if (!u) return;
+      title.textContent = '✏ Edit User: ' + u.name;
+      body.innerHTML = `
+        <div class="fg"><div class="fl">Full Name</div><input class="fi" id="eu-name" value="${u.name}"/></div>
+        <div class="fg"><div class="fl">Role</div><select class="fsel" id="eu-role"><option ${u.role==='Front Desk'?'selected':''}>Front Desk</option><option ${u.role==='Nurse'?'selected':''}>Nurse</option><option ${u.role==='Doctor'?'selected':''}>Doctor</option><option ${u.role==='Admin'?'selected':''}>Admin</option></select></div>
+        <div class="fg"><div class="fl">New Access Code (leave blank to keep)</div><input class="fi" id="eu-code" type="password" placeholder="New code…" autocomplete="new-password"/></div>
+        <div style="background:var(--gp);border-radius:var(--rx);padding:10px 12px;font-size:12px;color:var(--gd);margin-top:4px">Username: <strong>${u.username}</strong> · Clinic: <strong>${(DB.clinics.find(c=>c.id===u.clinicId)||{}).name||u.clinicId}</strong></div>`;
+      foot.innerHTML = `<button class="btn btn-g" onclick="Modal.close()">Cancel</button><button class="btn btn-p" onclick="AActions.editUser('${u.id}',document.getElementById('eu-name').value,document.getElementById('eu-role').value,document.getElementById('eu-code').value)">✓ Save Changes</button>`;
+    }
+
+    else if (type==='edit-perms') {
+      const u=DB.users.find(x=>x.id===arg);
+      if (!u) return;
+      title.textContent = '🔑 Permissions: ' + u.name;
+      body.innerHTML = `
+        <div style="background:var(--gp);border-radius:var(--rx);padding:10px 12px;font-size:12px;color:var(--gd);margin-bottom:14px"><strong>${u.name}</strong> · ${u.role} · ${(DB.clinics.find(c=>c.id===u.clinicId)||{}).name||'?'}</div>
+        <div class="perm-grid">
+          ${[{key:'appointments',label:'📅 Appointments'},{key:'patients',label:'👤 Patients'},{key:'referrals',label:'↗ Referrals'},{key:'labresults',label:'🧪 Lab Results'},{key:'insurance',label:'🛡 Insurance'},{key:'contact',label:'📲 Contact Prefs'},{key:'notifications',label:'🔔 Notifications'}].map(p=>`
+            <div class="perm-item">
+              <div class="perm-label">${p.label}</div>
+              <div class="tog ${u.permissions[p.key]?'on':''}" onclick="AActions.togglePerm('${u.id}','${p.key}',this)"></div>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-s btn-sm" onclick="AActions.grantAll('${u.id}');Modal.close();Modal.open('edit-perms','${u.id}')">Grant All</button>
+          <button class="btn btn-d btn-sm" onclick="AActions.revokeAll('${u.id}');Modal.close();Modal.open('edit-perms','${u.id}')">Revoke All</button>
+        </div>`;
+      foot.innerHTML = `<button class="btn btn-p" onclick="AActions.savePerms('${u.id}');Modal.close()">✓ Save Permissions</button><button class="btn btn-g" onclick="Modal.close()">Close</button>`;
+    }
+
+    else if (type==='adm-view-clinic') {
+      const c=DB.clinics.find(x=>x.id===arg);
+      if (!c) return;
+      const data=DB.clinicData[c.id]||{};
+      const users=DB.users.filter(u=>u.clinicId===c.id);
+      box.classList.add('wide');
+      title.textContent = '🏥 ' + c.name;
+      body.innerHTML = `<div class="g2">
+        <div>
+          <div class="sl">Clinic Info</div>
+          <div class="ir"><div class="ir-l">ID</div><div class="ir-v" style="font-family:'DM Mono',monospace">${c.id}</div></div>
+          <div class="ir"><div class="ir-l">Location</div><div class="ir-v">${c.location}</div></div>
+          <div class="ir"><div class="ir-l">Type</div><div class="ir-v">${c.type||'—'}</div></div>
+          <div class="ir"><div class="ir-l">Phone</div><div class="ir-v">${c.phone}</div></div>
+          <div class="ir"><div class="ir-l">Email</div><div class="ir-v">${c.email}</div></div>
+          <div class="ir"><div class="ir-l">Status</div><div class="ir-v"><span class="badge ${c.active?'bg-g':'bg-o'}">${c.active?'Active':'Inactive'}</span></div></div>
+          <div class="ir"><div class="ir-l">Patients</div><div class="ir-v">${(data.patients||[]).length}</div></div>
+          <div class="ir" style="border:none"><div class="ir-l">Appointments</div><div class="ir-v">${(data.appointments||[]).length}</div></div>
+        </div>
+        <div>
+          <div class="sl">Staff Accounts (${users.length})</div>
+          ${users.map(u=>`<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--g50);border-radius:var(--rx);border:1px solid var(--g200);margin-bottom:6px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--gd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">${u.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+            <div><div style="font-size:12px;font-weight:600;color:var(--g900)">${u.name}</div><div style="font-size:10.5px;color:var(--g500)">@${u.username} · ${u.role}</div></div>
+            <span class="badge ${u.active?'bg-g':'bg-o'}" style="margin-left:auto">${u.active?'Active':'Off'}</span>
+          </div>`).join('')||'<div style="font-size:12px;color:var(--g300)">No users assigned</div>'}
+        </div>
+      </div>`;
+      foot.innerHTML = `<button class="btn btn-b" onclick="Modal.close();Modal.open('create-user-for','${c.id}')">＋ Add User</button><button class="btn btn-d" onclick="Modal.close();AActions.deleteClinic('${c.id}')">Remove Clinic</button><button class="btn btn-g" onclick="Modal.close()">Close</button>`;
+    }
+  },
+
+  _createUser() {
+    const permKeys=['appointments','patients','referrals','labresults','insurance','contact','notifications'];
+    const perms={};
+    permKeys.forEach(k=>{ const el=document.getElementById('cu-p-'+k); perms[k]=el?el.classList.contains('on'):true; });
+    AActions.createUser(
+      document.getElementById('cu-user').value.trim(),
+      document.getElementById('cu-code').value.trim(),
+      document.getElementById('cu-name').value.trim(),
+      document.getElementById('cu-role').value,
+      document.getElementById('cu-clinic').value,
+      perms
+    );
+  },
+
+  close(e) {
+    if (e && e.target !== document.getElementById('modal')) return;
+    document.getElementById('modal').classList.remove('open');
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function toast(msg, type='success') {
+  const c=document.getElementById('toasts');
+  const t=document.createElement('div');
+  t.className='toast'+(type==='err'?' err':type==='inf'?' inf':type==='warn'?' warn':'');
+  t.innerHTML=`<span>${type==='err'?'✕':type==='inf'?'ℹ':'✓'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),320); },3400);
+}
+
+function auditLog(user, clinic, action) {
+  const now=new Date();
+  const time=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  DB.auditLog.unshift({ user, clinic, action, time, ts:Date.now() });
+  if (DB.auditLog.length>200) DB.auditLog.pop();
+  R.adminAuditPreview();
+}
+
+function nowTime() {
+  const n=new Date();
+  return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+(function init() {
+  // Initial audit entry
+  auditLog('System', 'MediStream', 'Platform started');
+
+  // Set referral date default
+  const rd = document.getElementById('rp-date');
+  if (rd) { const d=new Date(); d.setDate(d.getDate()+5); rd.value=d.toISOString().slice(0,10); }
+
+  // Clock
+  setInterval(() => {
+    const n=new Date();
+    const t=n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const cc=document.getElementById('clock-c'); if(cc)cc.textContent=t;
+    const as=document.getElementById('adm-sync'); if(as)as.textContent='Synced '+n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const cs=document.getElementById('c-sync'); if(cs)cs.textContent='Synced '+n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  },1000);
+})();
+</script>
+</body>
+</html>
